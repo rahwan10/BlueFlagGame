@@ -1,8 +1,64 @@
 "use strict";
 
+const CHAR_STATE = {
+  STAND: "./img/graffe_standing.png",
+  JUMP: "./img/graffe_jump.png",
+  LIE: "./img/graffe_lieDown.png",
+};
+
+let currentState = "STAND";
+function setCharState(state) {
+  currentState = state;
+  document.getElementById("char").src = CHAR_STATE[state];
+}
+ let charTimer;
+  function charAct(action) {
+    clearTimeout(charTimer);
+    if (action === "UP") {
+      setCharState("JUMP");
+    } else if (action === "DOWN") {
+      setCharState("LIE");
+    } else {
+      setCharState("STAND");
+    }
+    charTimer = setTimeout(() => {
+      setCharState("STAND");
+    }, 200);
+  }
 // ══════════════════════════════════════════════
 //  AUDIO ENGINE
 // ══════════════════════════════════════════════
+
+const BGM = (() => {
+  let ctx;
+  let buffer;
+  let source;
+
+  async function init() {
+    if (!ctx) ctx = new AudioContext();
+
+    const res = await fetch("bgm.mp3");
+    const arrayBuffer = await res.arrayBuffer();
+    buffer = await ctx.decodeAudioData(arrayBuffer);
+  }
+
+  function play(startAt = 0) {
+    if (!ctx || !buffer) return;
+
+    source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+
+    const now = ctx.currentTime;
+    source.start(now, startAt); // ⭐ 정확한 싱크 시작
+  }
+
+  function stop() {
+    if (source) source.stop();
+  }
+
+  return { init, play, stop, ctx };
+})();
 const Audio$ = (() => {
   let ctx = null;
   function init() {
@@ -143,8 +199,8 @@ const UI = (() => {
   const phaseInpEl = document.getElementById("phaseInput");
   const pipRowEl = document.getElementById("pipRow");
   const slotsEl = document.getElementById("slotsEl");
-  const timingHit = document.getElementById("timingHit");
-  const timingStatus = document.getElementById("timingStatus");
+  //const timingHit = document.getElementById("timingHit");
+  //const timingStatus = document.getElementById("timingStatus");
 
   const ICON = { UP: "▲", DOWN: "▼", REST: "―" };
   const COLOR = { UP: "var(--green)", DOWN: "var(--blue)", REST: "var(--dim)" };
@@ -226,55 +282,29 @@ const UI = (() => {
   }
 
   // ── Timing visualizer
-  function showTimingHit(diffMs, grade) {
-    // diffMs: signed, negative = early, positive = late
-    // map to 0–100% where 50% = perfect center, ±800ms = full range
-    const range = 800;
-    const pct = 50 + (diffMs / range) * 100;
-    const clamped = Math.max(2, Math.min(98, pct));
-    timingHit.style.left = clamped + "%";
-    timingHit.className = `timing-hit show h-${grade}`;
-    timingStatus.textContent =
-      grade === "miss"
-        ? `MISS  (${diffMs > 0 ? "+" : ""}${Math.round(diffMs)}ms)`
-        : `${grade.toUpperCase()}  (${diffMs > 0 ? "+" : ""}${Math.round(diffMs)}ms)`;
-    setTimeout(() => {
-      timingHit.classList.remove("show");
-    }, 700);
-  }
+  //   function showTimingHit(diffMs, grade) {
+  //     // diffMs: signed, negative = early, positive = late
+  //     // map to 0–100% where 50% = perfect center, ±800ms = full range
+  //     const range = 800;
+  //     const pct = 50 + (diffMs / range) * 100;
+  //     const clamped = Math.max(2, Math.min(98, pct));
+  //     timingHit.style.left = clamped + "%";
+  //     timingHit.className = `timing-hit show h-${grade}`;
+  //     timingStatus.textContent =
+  //       grade === "miss"
+  //         ? `MISS  (${diffMs > 0 ? "+" : ""}${Math.round(diffMs)}ms)`
+  //         : `${grade.toUpperCase()}  (${diffMs > 0 ? "+" : ""}${Math.round(diffMs)}ms)`;
+  //     setTimeout(() => {
+  //       timingHit.classList.remove("show");
+  //     }, 700);
+  //   }
 
-  function setTimingStatus(txt) {
-    timingStatus.textContent = txt;
-  }
+  //   function setTimingStatus(txt) {
+  //     timingStatus.textContent = txt;
+  //   }
 
   // ── Character
-  let charTimer;
-  function charAct(action, ok) {
-    clearTimeout(charTimer);
-    charEl.className = "char";
-    if (!ok) {
-      charEl.textContent = "😵";
-      charEl.classList.add("s-miss");
-      charTimer = setTimeout(() => {
-        charEl.className = "char";
-        charEl.textContent = "🧍";
-      }, 450);
-      return;
-    }
-    if (action === "UP") {
-      charEl.textContent = "🤸";
-      charEl.classList.add("s-up");
-    } else if (action === "DOWN") {
-      charEl.textContent = "🙇";
-      charEl.classList.add("s-down");
-    } else {
-      charEl.textContent = "🧍";
-    }
-    charTimer = setTimeout(() => {
-      charEl.className = "char";
-      charEl.textContent = "🧍";
-    }, 500);
-  }
+ 
 
   // ── Judgment popup
   let judgTimer;
@@ -338,8 +368,8 @@ const UI = (() => {
     setPhase,
     charAct,
     showJudgment,
-    showTimingHit,
-    setTimingStatus,
+    //showTimingHit,
+    //setTimingStatus,
     updateHUD,
     setRound,
     addPip,
@@ -356,7 +386,7 @@ const UI = (() => {
 // ══════════════════════════════════════════════
 const Game = (() => {
   const TOTAL_ROUNDS = 8;
-  const BEAT_MS = 350;
+  const BEAT_MS = 328;
   const PERFECT_MS = 150;
   const OK_MS = 300;
   const MAX_LIFE = 3;
@@ -382,9 +412,10 @@ const Game = (() => {
   // ─────────────────────────────
   // START
   // ─────────────────────────────
-  function start() {
+  async function start() {
     UI.hideStart();
     Audio$.resume();
+    await BGM.init();
 
     state = {
       round: 0,
@@ -398,8 +429,11 @@ const Game = (() => {
 
     UI.clearPips();
     UI.updateHUD(0, 0, MAX_LIFE);
-    UI.setTimingStatus("대기중...");
-    nextRound();
+    //UI.setTimingStatus("대기중...");
+    BGM.play(0);
+    T(() => {
+      nextRound();
+    }, 2800);
   }
 
   function restart() {
@@ -428,7 +462,7 @@ const Game = (() => {
     UI.buildSlots();
     UI.setRound(state.round, TOTAL_ROUNDS);
     UI.setPhase("show");
-    UI.setTimingStatus("보기 페이즈...");
+    //UI.setTimingStatus("보기 페이즈...");
 
     InputHandler.setCallback(null);
 
@@ -454,7 +488,7 @@ const Game = (() => {
     T(() => {
       UI.setPhase("input");
       Audio$.cue();
-      UI.setTimingStatus("입력 페이즈 — 타이밍!");
+      //UI.setTimingStatus("입력 페이즈 — 타이밍!");
     }, inputStart - now);
 
     // ─────────────────────────
@@ -519,8 +553,9 @@ const Game = (() => {
 
     if (expected === "REST") {
       UI.setSlotResult(i, "miss");
-      UI.showTimingHit(diffMs, "miss");
+      //UI.showTimingHit(diffMs, "miss");
       UI.showJudgment("miss", expected);
+      charAct(expected);
       Audio$.miss();
       applyGrade(i, "miss");
       return;
@@ -528,8 +563,9 @@ const Game = (() => {
 
     if (dir !== expected) {
       UI.setSlotResult(i, "miss");
-      UI.showTimingHit(diffMs, "miss");
+      //UI.showTimingHit(diffMs, "miss");
       UI.showJudgment("miss", expected);
+      charAct(expected);
       Audio$.miss();
       applyGrade(i, "miss");
       return;
@@ -538,7 +574,8 @@ const Game = (() => {
     const grade = abs <= PERFECT_MS ? "perfect" : abs <= OK_MS ? "ok" : "miss";
 
     UI.setSlotResult(i, grade);
-    UI.showTimingHit(diffMs, grade);
+    //UI.showTimingHit(diffMs, grade);
+    UI.charAct(expected);
     UI.showJudgment(grade, expected);
 
     if (grade === "perfect") Audio$.perfect();
@@ -551,13 +588,13 @@ const Game = (() => {
   function handleMiss(i, expected) {
     if (expected === "REST") {
       UI.setSlotResult(i, "ok");
-      UI.showTimingHit(0, "perfect");
+      //UI.showTimingHit(0, "perfect");
       UI.showJudgment("perfect", "REST");
       Audio$.restOk();
       applyGrade(i, "perfect");
     } else {
       UI.setSlotResult(i, "miss");
-      UI.setTimingStatus("MISS — 입력 없음");
+      //UI.setTimingStatus("MISS — 입력 없음");
       UI.showJudgment("miss", expected);
       Audio$.miss();
       applyGrade(i, "miss");
@@ -589,6 +626,7 @@ const Game = (() => {
 
     if (state.life <= 0) {
       clearAll();
+      BGM.stop();
       T(() => endGame(false), 0);
     }
   }

@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;700&display=swap');
 
+img {
+    width: 100px;
+    height: auto;
+}
+
 :root {
     --bg: #080810;
     --surface: #10101c;
