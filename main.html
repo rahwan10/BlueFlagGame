@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>청기백기 리듬게임</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- START SCREEN -->
+  <div class="overlay" id="startScreen">
+    <div class="ov-title">청기백기</div>
+    <div class="ov-note">
+      👁 <b>보기</b> — 4개 명령이 0.8초 간격으로 공개됩니다<br>
+      ✋ <b>입력</b> — 똑같이 0.8초 간격, 타이밍에 맞게 누르세요<br>
+      <span style="color:var(--green)">±50ms</span> PERFECT &nbsp;·&nbsp;
+      <span style="color:var(--blue)">±150ms</span> OK &nbsp;·&nbsp;
+      <span style="color:var(--red)">그 이외</span> MISS<br><br>
+      ▲ 뛰어 · ▼ 엎드려 · <b>Space</b> 안 누름(REST)
+    </div>
+    <div class="ov-actions">
+      <button class="btn btn-start" style="padding:14px 48px;font-size:16px" onclick="Game.start()">▶ START</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="overlay hidden" id="resultScreen">
+    <div class="ov-title" id="resTitle">결과</div>
+    <div class="ov-score" id="resScore">0</div>
+    <div class="ov-detail" id="resDetail"></div>
+    <div class="ov-actions">
+      <button class="btn btn-start" style="padding:14px 32px" onclick="Game.restart()">↺ 다시하기</button>
+      <button class="btn" style="padding:14px 32px" onclick="Game.goTitle()">◀ 타이틀</button>
+    </div>
+  </div>
+
+  <div id="app">
+    <!-- header -->
+    <div class="header">
+      <div class="logo">청기백기</div>
+      <div class="hud">
+        <div class="hud-item">
+          <div class="hud-label">SCORE</div>
+          <div class="hud-val" id="scoreEl">0</div>
+        </div>
+        <div class="hud-item">
+          <div class="hud-label">LIFE</div>
+          <div class="hud-val" id="lifeEl">❤❤❤</div>
+        </div>
+        <div class="hud-item">
+          <div class="hud-label">COMBO</div>
+          <div class="hud-val" id="comboEl">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- character -->
+    <div class="char-area">
+      <div class="char" id="char">🧍</div>
+      <div class="judgment" id="judgment"></div>
+    </div>
+
+    <!-- phase indicator -->
+    <div class="phase-bar">
+      <div class="phase-half" id="phaseShow">👁 보기 페이즈</div>
+      <div class="phase-half" id="phaseInput">✋ 입력 페이즈</div>
+    </div>
+
+    <!-- 4 slots -->
+    <div class="slots" id="slotsEl"></div>
+
+    <!-- timing visualizer -->
+    <div class="timing-area">
+      <div class="timing-label">
+        <span>EARLY ←</span>
+        <span id="timingStatus">대기중...</span>
+        <span>→ LATE</span>
+      </div>
+      <div class="timing-track">
+        <div class="timing-zone-ok"></div>
+        <div class="timing-zone-perfect"></div>
+        <div class="timing-center"></div>
+        <div class="timing-hit" id="timingHit"></div>
+      </div>
+      <div class="timing-label">
+        <span style="color:var(--red)">MISS</span>
+        <span style="color:var(--blue)">OK ±150ms</span>
+        <span style="color:var(--green)">PERFECT ±50ms</span>
+        <span style="color:var(--blue)">OK ±150ms</span>
+        <span style="color:var(--red)">MISS</span>
+      </div>
+    </div>
+
+    <!-- round info -->
+    <div class="round-info">
+      <span class="round-label">ROUND</span>
+      <span class="round-val" id="roundEl">- / -</span>
+      <div class="pip-row" id="pipRow"></div>
+    </div>
+
+    <!-- controls -->
+    <div class="controls">
+      <button class="btn btn-up" id="btnUp" onclick="InputHandler.press('UP')">▲ 뛰어<span class="btn-key">↑
+          Arrow</span></button>
+      <button class="btn btn-rest" id="btnRest" onclick="InputHandler.press('REST')">― 안 누름<span
+          class="btn-key">Space</span></button>
+      <button class="btn btn-down" id="btnDown" onclick="InputHandler.press('DOWN')">▼ 엎드려<span class="btn-key">↓
+          Arrow</span></button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
