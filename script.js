@@ -11,23 +11,30 @@ function setCharState(state) {
   currentState = state;
   document.getElementById("char").src = CHAR_STATE[state];
 }
- let charTimer;
-  function charAct(action) {
-    clearTimeout(charTimer);
-    if (action === "UP") {
-      setCharState("JUMP");
-    } else if (action === "DOWN") {
-      setCharState("LIE");
-    } else {
-      setCharState("STAND");
-    }
-    charTimer = setTimeout(() => {
-      setCharState("STAND");
-    }, 200);
+let charTimer;
+function charAct(action) {
+  clearTimeout(charTimer);
+  if (action === "UP") {
+    setCharState("JUMP");
+  } else if (action === "DOWN") {
+    setCharState("LIE");
+  } else {
+    setCharState("STAND");
   }
+  charTimer = setTimeout(() => {
+    setCharState("STAND");
+  }, 200);
+}
 // ══════════════════════════════════════════════
 //  AUDIO ENGINE
 // ══════════════════════════════════════════════
+let bgmReady = false;
+
+async function preloadBGM() {
+  if (bgmReady) return;
+  await BGM.init();
+  bgmReady = true;
+}
 
 const BGM = (() => {
   let ctx;
@@ -41,7 +48,7 @@ const BGM = (() => {
     const arrayBuffer = await res.arrayBuffer();
     buffer = await ctx.decodeAudioData(arrayBuffer);
   }
-
+  let startTime = 0;
   function play(startAt = 0) {
     if (!ctx || !buffer) return;
 
@@ -304,7 +311,6 @@ const UI = (() => {
   //   }
 
   // ── Character
- 
 
   // ── Judgment popup
   let judgTimer;
@@ -385,10 +391,10 @@ const UI = (() => {
 //  GAME CONTROLLER
 // ══════════════════════════════════════════════
 const Game = (() => {
-  const TOTAL_ROUNDS = 8;
-  const BEAT_MS = 328;
-  const PERFECT_MS = 150;
-  const OK_MS = 300;
+  const TOTAL_ROUNDS = 5;
+  const BEAT_MS = 328; //작게하면 빨라짐
+  const PERFECT_MS = 180;
+  const OK_MS = 220;
   const MAX_LIFE = 3;
 
   window._BEAT_MS = BEAT_MS;
@@ -412,10 +418,11 @@ const Game = (() => {
   // ─────────────────────────────
   // START
   // ─────────────────────────────
+
   async function start() {
+    BGM.stop();
     UI.hideStart();
     Audio$.resume();
-    await BGM.init();
 
     state = {
       round: 0,
@@ -433,12 +440,13 @@ const Game = (() => {
     BGM.play(0);
     T(() => {
       nextRound();
-    }, 2800);
+    }, BEAT_MS * 8+150);
   }
 
   function restart() {
     UI.hideResult();
     clearAll();
+    BGM.stop();
     start();
   }
 
@@ -446,6 +454,17 @@ const Game = (() => {
     UI.hideResult();
     clearAll();
     UI.showStart();
+  }
+  async function handleStart() {
+    Audio$.resume();
+    //showLoading(); // 있으면
+    await preloadBGM(); // 있으면
+
+    setTimeout(() => {
+      //hideLoading();
+      start();
+    }, 2000);
+  
   }
 
   // ─────────────────────────────
@@ -644,7 +663,7 @@ const Game = (() => {
     }, 300);
   }
 
-  return { start, restart, goTitle };
+  return { start, restart, goTitle, handleStart };
 })();
 
 // init
