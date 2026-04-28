@@ -206,6 +206,7 @@ const UI = (() => {
   const phaseInpEl = document.getElementById("phaseInput");
   const pipRowEl = document.getElementById("pipRow");
   const slotsEl = document.getElementById("slotsEl");
+  const loadingEl = document.getElementById("loadingScreen");
   //const timingHit = document.getElementById("timingHit");
   //const timingStatus = document.getElementById("timingStatus");
 
@@ -364,6 +365,12 @@ const UI = (() => {
   function hideResult() {
     document.getElementById("resultScreen").classList.add("hidden");
   }
+  function showLoading() {
+    loadingEl.classList.remove("hidden");
+  }
+  function hideLoading() {
+    loadingEl.classList.add("hidden");
+  }
 
   return {
     buildSlots,
@@ -374,8 +381,8 @@ const UI = (() => {
     setPhase,
     charAct,
     showJudgment,
-    //showTimingHit,
-    //setTimingStatus,
+    showLoading,
+    hideLoading,
     updateHUD,
     setRound,
     addPip,
@@ -457,11 +464,11 @@ const Game = (() => {
   }
   async function handleStart() {
     Audio$.resume();
-    //showLoading(); // 있으면
+    UI.showLoading(); // 있으면
     await preloadBGM(); // 있으면
 
     setTimeout(() => {
-      //hideLoading();
+      UI.hideLoading();
       start();
     }, 2000);
   
