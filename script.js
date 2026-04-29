@@ -109,14 +109,14 @@ const Audio$ = (() => {
 const POOL = {
   UP: [
     { text: "뛰어!", action: "UP" },
-    { text: "점프!", action: "UP" },
+    //{ text: "점프!", action: "UP" },
     //{ text: "위로!", action: "UP" },
     //{ text: "올라!", action: "UP" },
     //{ text: "도약!", action: "UP" },
   ],
   DOWN: [
     { text: "엎드려!", action: "DOWN" },
-    { text: "아래로!", action: "DOWN" },
+    //{ text: "아래로!", action: "DOWN" },
     //{ text: "숙여!", action: "DOWN" },
     //{ text: "낮춰!", action: "DOWN" },
     //{ text: "내려!", action: "DOWN" },
@@ -181,8 +181,8 @@ const InputHandler = (() => {
 
   document.addEventListener("keydown", (e) => {
     if (e.repeat) return;
-    if (e.key === "ArrowUp") press("UP");
-    else if (e.key === "ArrowDown") press("DOWN");
+    if (e.key === "ArrowUp"||e.key ==="w") press("UP");
+    else if (e.key === "ArrowDown"||e.key ==="s") press("DOWN");
     else if (e.key === " " || e.key === "ArrowRight") {
       e.preventDefault();
       press("REST");
@@ -400,9 +400,9 @@ const UI = (() => {
 const Game = (() => {
   const TOTAL_ROUNDS = 5;
   const BEAT_MS = 328; //작게하면 빨라짐
-  const PERFECT_MS = 180;
-  const OK_MS = 220;
-  const MAX_LIFE = 3;
+  const PERFECT_MS = 220;
+  const OK_MS = 300;
+  const MAX_LIFE = 5;
 
   window._BEAT_MS = BEAT_MS;
 
@@ -470,7 +470,7 @@ const Game = (() => {
     setTimeout(() => {
       UI.hideLoading();
       start();
-    }, 2000);
+    }, 3000);
   
   }
 
