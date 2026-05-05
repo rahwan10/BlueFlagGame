@@ -22,7 +22,8 @@
       ▲ 뛰어 · ▼ 엎드려 · <b>Space</b> 안 누름(REST)
     </div>
     <div class="ov-actions">
-      <button class="btn btn-start" style="padding:14px 48px;font-size:16px" onclick="Game.handleStart()">▶ START</button>
+      <button class="btn btn-start" style="padding:14px 48px;font-size:16px" onclick="Game.handleStart(false)">▶ START</button>
+      <button class="btn btn-start" style="padding:14px 48px;font-size:16px" onclick="Game.handleStart(true)">▶ REVERSE START</button>
     </div>
   </div>
 
@@ -32,7 +33,7 @@
     <div class="ov-score" id="resScore">0</div>
     <div class="ov-detail" id="resDetail"></div>
     <div class="ov-actions">
-      <button class="btn btn-start" style="padding:14px 32px" onclick="Game.restart()">↺ 다시하기</button>
+      <button class="btn btn-start" style="padding:14px 32px" onclick="Game.restart(false)">↺ 다시하기</button>
       
       <button class="btn" style="padding:14px 32px" onclick="Game.goTitle()">◀ 타이틀</button>
     </div>
