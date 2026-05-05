@@ -181,8 +181,8 @@ const InputHandler = (() => {
 
   document.addEventListener("keydown", (e) => {
     if (e.repeat) return;
-    if (e.key === "ArrowUp"||e.key ==="w") press("UP");
-    else if (e.key === "ArrowDown"||e.key ==="s") press("DOWN");
+    if (e.key === "ArrowUp" || e.key === "w") press("UP");
+    else if (e.key === "ArrowDown" || e.key === "s") press("DOWN");
     else if (e.key === " " || e.key === "ArrowRight") {
       e.preventDefault();
       press("REST");
@@ -400,8 +400,9 @@ const UI = (() => {
 const Game = (() => {
   const TOTAL_ROUNDS = 5;
   const BEAT_MS = 328; //작게하면 빨라짐
-  const PERFECT_MS = 220;
-  const OK_MS = 300;
+  // 퍼펙트 판정이 되는 최대 얼리 타이밍 (ms)
+  const PERFECT_MS = 100;
+  const OK_MS = 220;
   const MAX_LIFE = 5;
 
   window._BEAT_MS = BEAT_MS;
@@ -445,9 +446,12 @@ const Game = (() => {
     UI.updateHUD(0, 0, MAX_LIFE);
     //UI.setTimingStatus("대기중...");
     BGM.play(0);
-    T(() => {
-      nextRound();
-    }, BEAT_MS * 8+150);
+    T(
+      () => {
+        nextRound();
+      },
+      BEAT_MS * 8 + 150,
+    );
   }
 
   function restart() {
@@ -471,7 +475,6 @@ const Game = (() => {
       UI.hideLoading();
       start();
     }, 3000);
-  
   }
 
   // ─────────────────────────────
@@ -521,8 +524,7 @@ const Game = (() => {
     // INPUT BEATS
     // ─────────────────────────
     for (let i = 0; i < 8; i++) {
-      const beatTime = inputStart + i * BEAT_MS;
-
+      const beatTime = inputStart + i * BEAT_MS; // 입력 허용을 비트 시작보다 약간 앞당김 (음향 큐와 시각 효과를 고려)
       T(() => {
         Audio$.tick();
         UI.setSlotActive(i);
@@ -534,11 +536,20 @@ const Game = (() => {
         InputHandler.setCallback((dir, pressTime) => {
           if (judged) return;
           judged = true;
-          InputHandler.setCallback(null);
+          // 콜백을 즉시 null로 치우지 말고, 다음 비트 시작 직전에 null 처리
+          // handleJudge 안에서 setCallback(null) 제거
 
-          const diffMs = pressTime - beatTime; // ⭐ 핵심 수정
-
+          const diffMs = pressTime - beatTime;
           handleJudge(i, dir, expected, diffMs);
+
+          // 다음 슬롯 비트 시작 100ms 전까지 입력 차단
+          const lockUntil = beatTime + BEAT_MS - 80;
+          const remaining = lockUntil - performance.now();
+          if (remaining > 0) {
+            setTimeout(() => InputHandler.setCallback(null), remaining);
+          } else {
+            InputHandler.setCallback(null);
+          }
         });
 
         // ───── AUTO MISS ─────
@@ -597,7 +608,12 @@ const Game = (() => {
       return;
     }
 
-    const grade = abs <= PERFECT_MS ? "perfect" : abs <= OK_MS ? "ok" : "miss";
+    const grade =
+      abs <= PERFECT_MS 
+        ? "perfect"
+        : abs <= OK_MS
+          ? "ok" // early perfect 범위 밖이어도 ok로 잡힘
+          : "miss";
 
     UI.setSlotResult(i, grade);
     //UI.showTimingHit(diffMs, grade);
