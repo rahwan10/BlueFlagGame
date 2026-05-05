@@ -109,21 +109,21 @@ const Audio$ = (() => {
 const POOL = {
   UP: [
     { text: "뛰어!", action: "UP" },
-    //{ text: "점프!", action: "UP" },
-    //{ text: "위로!", action: "UP" },
+    { text: "점프!", action: "UP" },
+    { text: "위로!", action: "UP" },
     //{ text: "올라!", action: "UP" },
     //{ text: "도약!", action: "UP" },
   ],
   DOWN: [
     { text: "엎드려!", action: "DOWN" },
-    //{ text: "아래로!", action: "DOWN" },
-    //{ text: "숙여!", action: "DOWN" },
+    { text: "아래로!", action: "DOWN" },
+    { text: "숙여!", action: "DOWN" },
     //{ text: "낮춰!", action: "DOWN" },
     //{ text: "내려!", action: "DOWN" },
   ],
   REST: [
     { text: "가만히", action: "REST" },
-    //{ text: "그대로", action: "REST" },
+    { text: "그대로", action: "REST" },
     //{ text: "쉬어", action: "REST" },
     //{ text: "멈춰", action: "REST" },
   ],
@@ -245,7 +245,7 @@ const UI = (() => {
   function revealSlot(i, cmd) {
     const s = document.getElementById("slot" + i);
     s.className = "slot " + CLS[cmd.action];
-    
+
     document.getElementById("st" + i).textContent = cmd.text;
     document.getElementById("st" + i).style.color = COLOR[cmd.action];
     document.getElementById("sh" + i).textContent = HINT[cmd.action];
@@ -255,7 +255,6 @@ const UI = (() => {
     const s = document.getElementById("slot" + i);
     s.classList.add("s-active");
     // animate timing bar full → empty over BEAT_MS
-
   }
 
   function clearSlotActive(i) {
@@ -400,11 +399,18 @@ const UI = (() => {
 // ══════════════════════════════════════════════
 const Game = (() => {
   const TOTAL_ROUNDS = 5;
-  const BEAT_MS = 328; //작게하면 빨라짐
+  // const BEAT_MS_FAST = 328; //작게하면 빨라짐
+  // // 퍼펙트 판정이 되는 최대 얼리 타이밍 (ms)
+  // const PERFECT_MS_FAST = 100;
+  // const OK_MS_FAST = 220;
+  // const DELAY_MS_FAST = 150;
+
+  const BEAT_MS =375 ; //작게하면 빨라짐
   // 퍼펙트 판정이 되는 최대 얼리 타이밍 (ms)
   const PERFECT_MS = 100;
   const OK_MS = 220;
   const MAX_LIFE = 5;
+  const DELAY_MS = 0;
 
   window._BEAT_MS = BEAT_MS;
 
@@ -451,7 +457,7 @@ const Game = (() => {
       () => {
         nextRound(isReverse);
       },
-      BEAT_MS * 8 + 150,
+      BEAT_MS * 8 + DELAY_MS,
     );
   }
 
