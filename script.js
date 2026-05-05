@@ -129,12 +129,24 @@ const POOL = {
   ],
 };
 
+const REVERSE_POOL = {
+  UP: [{ text: "엎드려!", action: "UP" }],
+  DOWN: [{ text: "뛰어!", action: "DOWN" }],
+  REST: [{ text: "가만히", action: "REST" }],
+};
+
 function pickCmd(action) {
+  console.log("pickCmd", action);
   const p = POOL[action];
   return { ...p[Math.floor(Math.random() * p.length)] };
 }
+function pickReverseCmd(action) {
+  console.log("pickReverseCmd", action);
+  const p = REVERSE_POOL[action];
+  return { ...p[Math.floor(Math.random() * p.length)] };
+}
 
-function genSequence() {
+function genSequence(isReverse) {
   // Always include at least one of each, 4th slot random
   const base = ["UP", "DOWN", "REST"];
 
@@ -155,7 +167,7 @@ function genSequence() {
     const j = Math.floor(Math.random() * (i + 1));
     [bag[i], bag[j]] = [bag[j], bag[i]];
   }
-  return bag.map((a) => pickCmd(a));
+  return bag.map((a) => (isReverse ? pickReverseCmd(a) : pickCmd(a)));
 }
 
 // ══════════════════════════════════════════════
@@ -225,18 +237,15 @@ const UI = (() => {
       d.innerHTML = `
         <span class="slot-num">${i + 1}</span>
         <span class="slot-text" id="st${i}"></span>
-        <span class="slot-icon" id="si${i}">?</span>
-        <span class="slot-hint" id="sh${i}"></span>
-        <div class="slot-tbar"><div class="slot-tfill" id="sf${i}"></div></div>`;
+        <span class="slot-hint" id="sh${i}"></span
+        `;
       slotsEl.appendChild(d);
     }
   }
-
   function revealSlot(i, cmd) {
     const s = document.getElementById("slot" + i);
     s.className = "slot " + CLS[cmd.action];
-    document.getElementById("si" + i).textContent = ICON[cmd.action];
-    document.getElementById("si" + i).style.color = COLOR[cmd.action];
+    
     document.getElementById("st" + i).textContent = cmd.text;
     document.getElementById("st" + i).style.color = COLOR[cmd.action];
     document.getElementById("sh" + i).textContent = HINT[cmd.action];
@@ -246,15 +255,7 @@ const UI = (() => {
     const s = document.getElementById("slot" + i);
     s.classList.add("s-active");
     // animate timing bar full → empty over BEAT_MS
-    const f = document.getElementById("sf" + i);
-    f.style.transition = "none";
-    f.style.transform = "scaleX(1)";
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        f.style.transition = `transform ${window._BEAT_MS}ms linear`;
-        f.style.transform = "scaleX(0)";
-      }),
-    );
+
   }
 
   function clearSlotActive(i) {
@@ -427,7 +428,7 @@ const Game = (() => {
   // START
   // ─────────────────────────────
 
-  async function start() {
+  async function start(isReverse) {
     BGM.stop();
     UI.hideStart();
     Audio$.resume();
@@ -448,17 +449,17 @@ const Game = (() => {
     BGM.play(0);
     T(
       () => {
-        nextRound();
+        nextRound(isReverse);
       },
       BEAT_MS * 8 + 150,
     );
   }
 
-  function restart() {
+  function restart(isReverse) {
     UI.hideResult();
     clearAll();
     BGM.stop();
-    start();
+    start(isReverse);
   }
 
   function goTitle() {
@@ -466,26 +467,26 @@ const Game = (() => {
     clearAll();
     UI.showStart();
   }
-  async function handleStart() {
+  async function handleStart(isReverse) {
     Audio$.resume();
     UI.showLoading(); // 있으면
     await preloadBGM(); // 있으면
 
     setTimeout(() => {
       UI.hideLoading();
-      start();
+      start(isReverse);
     }, 3000);
   }
 
   // ─────────────────────────────
   // ROUND
   // ─────────────────────────────
-  function nextRound() {
+  function nextRound(isReverse) {
     if (state.round >= TOTAL_ROUNDS) return endGame(true);
     clearAll();
 
     state.round++;
-    state.seq = genSequence();
+    state.seq = genSequence(isReverse);
     roundSlotResults = Array(8).fill(false);
 
     UI.buildSlots();
@@ -565,9 +566,9 @@ const Game = (() => {
     // ─────────────────────────
     // NEXT ROUND
     // ─────────────────────────
-    T(() => endRound(), inputStart + 8 * BEAT_MS - now);
+    T(() => endRound(isReverse), inputStart + 8 * BEAT_MS - now);
   }
-  function endRound() {
+  function endRound(isReverse) {
     InputHandler.setCallback(null);
     UI.setPhase("");
 
@@ -577,7 +578,7 @@ const Game = (() => {
       if (state.round >= TOTAL_ROUNDS) {
         endGame(true);
       } else {
-        nextRound();
+        nextRound(isReverse);
       }
     }, 0);
   }
@@ -609,7 +610,7 @@ const Game = (() => {
     }
 
     const grade =
-      abs <= PERFECT_MS 
+      abs <= PERFECT_MS
         ? "perfect"
         : abs <= OK_MS
           ? "ok" // early perfect 범위 밖이어도 ok로 잡힘
