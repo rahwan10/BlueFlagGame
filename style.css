@@ -265,6 +265,7 @@ body::after {
     font-family: 'Black Han Sans', sans-serif;
     font-size: 20px;
     letter-spacing: 1px;
+    color:white;
 }
 
 .slot-hint {
@@ -274,7 +275,8 @@ body::after {
 }
 
 /* reveal states */
-.slot.s-up {
+/* slot 색 힌트일단 제거 */
+/* .slot.s-up {
     border-color: #69ff8540;
 }
 
@@ -284,7 +286,7 @@ body::after {
 
 .slot.s-rest {
     color: var(--dim);
-}
+} */
 
 .slot.s-hidden .slot-icon {
     filter: blur(5px);

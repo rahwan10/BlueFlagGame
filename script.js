@@ -237,7 +237,7 @@ const UI = (() => {
       d.innerHTML = `
         <span class="slot-num">${i + 1}</span>
         <span class="slot-text" id="st${i}"></span>
-        <span class="slot-hint" id="sh${i}"></span
+        <span class="slot-hint" id="sh${i}"></span>
         `;
       slotsEl.appendChild(d);
     }
@@ -247,8 +247,8 @@ const UI = (() => {
     s.className = "slot " + CLS[cmd.action];
 
     document.getElementById("st" + i).textContent = cmd.text;
-    document.getElementById("st" + i).style.color = COLOR[cmd.action];
-    document.getElementById("sh" + i).textContent = HINT[cmd.action];
+    // document.getElementById("st" + i).style.color = COLOR[cmd.action];
+    // document.getElementById("sh" + i).textContent = HINT[cmd.action];
   }
 
   function setSlotActive(i) {
@@ -682,7 +682,9 @@ const Game = (() => {
 
   function endGame(success) {
     InputHandler.setCallback(null);
+    
     T(() => {
+      BGM.stop();
       UI.showResult(
         state.score,
         state.pCount,
