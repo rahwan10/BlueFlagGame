@@ -1,634 +1,411 @@
 @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;700&display=swap');
 
-img {
-    width: 100px;
-    height: auto;
-}
+/* ── RESET & BASE ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-    --bg: #080810;
-    --surface: #10101c;
-    --border: #1c1c2e;
-    --blue: #4fc3f7;
-    --white: #e8e8ff;
-    --red: #ff4d6d;
-    --green: #69ff85;
-    --yellow: #ffd60a;
-    --dim: #44445a;
-    --text: #b8b8d8;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  --bg:      #080810;
+  --surface: #10101c;
+  --border:  #1c1c2e;
+  --blue:    #4fc3f7;
+  --white:   #e8e8ff;
+  --red:     #ff4d6d;
+  --green:   #69ff85;
+  --yellow:  #ffd60a;
+  --dim:     #44445a;
+  --text:    #b8b8d8;
 }
 
 body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* 배경 그리드 */
 body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(79, 195, 247, .02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(79, 195, 247, .02) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-    z-index: 0;
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(79,195,247,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,195,247,.02) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
 }
 
+/* ══════════════════════════════════════
+   APP LAYOUT
+══════════════════════════════════════ */
 #app {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 680px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 18px 16px;
-    gap: 12px;
+  position: relative;
+  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
 }
 
-/* ── HEADER ── */
-.header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 18px;
-    border: 1px solid var(--border);
-    background: rgba(16, 16, 28, .95);
+/* ── 왼쪽 컬럼 ── */
+.left-col {
+  width: 33vw;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
 }
 
-.logo {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 20px;
-    letter-spacing: 3px;
-    background: linear-gradient(135deg, var(--blue), var(--white));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
+/* HUD */
 .hud {
-    display: flex;
-    gap: 20px;
+  display: flex;
+  justify-content: space-around;
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(16,16,28,.95);
+  flex-shrink: 0;
 }
 
-.hud-item {
-    text-align: center;
-}
+.hud-item { text-align: center; }
 
 .hud-label {
-    font-size: 9px;
-    color: var(--dim);
-    letter-spacing: 2px;
-    text-transform: uppercase;
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
 }
 
 .hud-val {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 18px;
-    color: var(--blue);
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 16px;
+  color: var(--blue);
 }
 
-/* ── CHARACTER ── */
+/* 캐릭터 */
 .char-area {
-    width: 100%;
-    height: 140px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.char-area::after {
-    content: '';
-    position: absolute;
-    bottom: 32px;
-    left: 0;
-    right: 0;
-    height: 1px;
-    
-}
+/* 바닥선 제거 */
 
-.char {
-    font-size: 60px;
-    position: absolute;
-    bottom: 32px;
-    transition: transform .15s cubic-bezier(.34, 1.56, .64, 1), filter .12s;
-    filter: drop-shadow(0 0 8px rgba(79, 195, 247, .35));
-    user-select: none;
-}
-
-.char.s-up {
-    transform: translateY(-64px);
-    filter: drop-shadow(0 0 18px rgba(105, 255, 133, .7));
-}
-
-.char.s-down {
-    transform: translateY(14px) scaleY(.46) scaleX(1.5);
-}
-
-.char.s-miss {
-    animation: shake .25s;
-    filter: drop-shadow(0 0 18px rgba(255, 77, 109, .8));
-}
-
-@keyframes shake {
-
-    0%,
-    100% {
-        transform: translateX(0)
-    }
-
-    30% {
-        transform: translateX(-8px)
-    }
-
-    70% {
-        transform: translateX(8px)
-    }
+#char {
+  width: 180px;
+  height: auto;
+  position: relative;
+  transition: transform .15s cubic-bezier(.34,1.56,.64,1);
+  filter: drop-shadow(0 0 12px rgba(79,195,247,.3));
 }
 
 .judgment {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 22px;
-    letter-spacing: 4px;
-    opacity: 0;
-    pointer-events: none;
-    white-space: nowrap;
-    transition: opacity .06s;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 20px;
+  letter-spacing: 3px;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: opacity .06s;
 }
+.judgment.show { opacity: 1; }
+.judgment.ok   { color: var(--green); text-shadow: 0 0 18px #69ff8580; }
+.judgment.miss { color: var(--red);   text-shadow: 0 0 18px #ff4d6d80; }
 
-.judgment.show {
-    opacity: 1;
-}
-
-.judgment.ok {
-    color: var(--green);
-    text-shadow: 0 0 18px #69ff8580;
-}
-
-.judgment.miss {
-    color: var(--red);
-    text-shadow: 0 0 18px #ff4d6d80;
-}
-
-/* ── PHASE BAR ── */
-.phase-bar {
-    width: 100%;
-    display: flex;
-    border: 1px solid var(--border);
-    overflow: hidden;
-}
-
-.phase-half {
-    flex: 1;
-    text-align: center;
-    padding: 7px;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--dim);
-    background: var(--surface);
-    transition: all .2s;
-}
-
-.phase-half.active-show {
-    background: var(--blue);
-    color: #000;
-    font-weight: 700;
-}
-
-.phase-half.active-input {
-    background: var(--yellow);
-    color: #000;
-    font-weight: 700;
-}
-
-/* ── 4 SLOTS ── */
-.slots {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-}
-
-.slot {
-    flex: 1;
-    height: 100px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color .15s, background .15s, box-shadow .15s;
-}
-
-.slot-num {
-    position: absolute;
-    top: 6px;
-    left: 8px;
-    font-size: 9px;
-    color: var(--dim);
-    font-family: 'Black Han Sans', sans-serif;
-}
-
-.slot-icon {
-    font-size: 10px;
-    line-height: 1;
-}
-
-.slot-text {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 20px;
-    letter-spacing: 1px;
-    color:white;
-}
-
-.slot-hint {
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--dim);
-}
-
-/* reveal states */
-/* slot 색 힌트일단 제거 */
-/* .slot.s-up {
-    border-color: #69ff8540;
-}
-
-.slot.s-down {
-    border-color: #4fc3f745;
-}
-
-.slot.s-rest {
-    color: var(--dim);
-} */
-
-.slot.s-hidden .slot-icon {
-    filter: blur(5px);
-    opacity: .2;
-}
-
-.slot.s-hidden .slot-text,
-.slot.s-hidden .slot-hint {
-    opacity: 0;
-}
-
-/* input active — flashes when it's YOUR TURN */
-.slot.s-active {
-    border-color: var(--yellow);
-    background: rgba(255, 214, 10, .06);
-    box-shadow: 0 0 22px #ffd60a45;
-}
-
-/* tiny pulse ring inside active slot */
-.slot.s-active::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border: 2px solid var(--yellow);
-    opacity: 0;
-    animation: ring .5s ease-out forwards;
-}
-
-@keyframes ring {
-    0% {
-        opacity: .8;
-        transform: scale(.85)
-    }
-
-    100% {
-        opacity: 0;
-        transform: scale(1.05)
-    }
-}
-
-.slot.s-ok {
-    border-color: var(--green);
-    background: rgba(105, 255, 133, .07);
-}
-
-.slot.s-miss {
-    border-color: var(--red);
-    background: rgba(255, 77, 109, .08);
-}
-
-/* timing bar at bottom of slot */
-.slot-tbar {
-    position: absolute;
-    bottom: 4px;
-    left: 6px;
-    right: 6px;
-    height: 3px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.slot-tfill {
-    height: 100%;
-    width: 100%;
-    background: var(--yellow);
-    transform-origin: left;
-    border-radius: 2px;
-}
-
-/* ── BIG TIMING RING (global) ── */
-.timing-ring-wrap {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-}
-
-/* ── ROUND INFO ── */
-.round-info {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 14px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    font-size: 11px;
-    letter-spacing: 2px;
-}
-
-.round-label {
-    color: var(--dim);
-}
-
-.round-val {
-    font-family: 'Black Han Sans', sans-serif;
-    color: var(--blue);
-}
-
-.pip-row {
-    display: flex;
-    gap: 3px;
-    flex-wrap: wrap;
-}
-
-.pip {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    transition: all .2s;
-}
-
-.pip.p-ok {
-    background: var(--green);
-    border-color: var(--green);
-}
-
-.pip.p-miss {
-    background: var(--red);
-    border-color: var(--red);
-}
-
-/* ── TIMING VISUALIZER ── */
-.timing-area {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.timing-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 9px;
-    color: var(--dim);
-    letter-spacing: 2px;
-}
-
-.timing-track {
-    position: relative;
-    height: 20px;
-    background: #0a0a14;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-/* perfect zone (center ±50ms / total track = 800ms) */
-.timing-zone-perfect {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: calc(50% - 6.25%);
-    width: 12.5%;
-    /* ±50ms of 800ms */
-    background: rgba(105, 255, 133, .15);
-}
-
-/* ok zone */
-.timing-zone-ok {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: calc(50% - 18.75%);
-    width: 37.5%;
-    /* ±150ms of 800ms */
-    background: rgba(79, 195, 247, .08);
-    border-left: 1px solid rgba(79, 195, 247, .25);
-    border-right: 1px solid rgba(79, 195, 247, .25);
-}
-
-.timing-center {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 1px;
-    background: var(--blue);
-    box-shadow: 0 0 6px var(--blue);
-}
-
-/* player hit marker */
-.timing-hit {
-    position: absolute;
-    top: 2px;
-    bottom: 2px;
-    width: 4px;
-    border-radius: 2px;
-    transform: translateX(-50%);
-    transition: left 0s;
-    opacity: 0;
-}
-
-.timing-hit.show {
-    opacity: 1;
-}
-
-.timing-hit.h-perfect {
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green);
-}
-
-.timing-hit.h-ok {
-    background: var(--yellow);
-    box-shadow: 0 0 8px var(--yellow);
-}
-
-.timing-hit.h-miss {
-    background: var(--red);
-    box-shadow: 0 0 8px var(--red);
-}
-
-/* ── CONTROLS ── */
+/* 컨트롤 버튼 */
 .controls {
-    width: 100%;
-    display: flex;
-    gap: 8px;
+  display: flex;
+  gap: 0;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
 }
 
 .btn {
-    flex: 1;
-    padding: 14px 8px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 14px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    transition: all .12s;
+  flex: 1;
+  padding: 14px 4px;
+  border: none;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: all .12s;
 }
+.btn:last-child { border-right: none; }
 
 .btn-key {
-    font-size: 9px;
-    color: var(--dim);
-    letter-spacing: 1px;
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 300;
 }
 
-.btn:active,
-.btn.pressed {
-    transform: scale(.93);
+.btn:active, .btn.pressed { background: rgba(255,255,255,.04); }
+
+.btn-up:hover   { background: rgba(105,255,133,.08); color: var(--green); }
+.btn-rest:hover { background: rgba(255,255,255,.04); }
+.btn-down:hover { background: rgba(79,195,247,.08);  color: var(--blue); }
+
+/* ── 오른쪽 컬럼 ── */
+.right-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.btn-up:hover {
-    border-color: var(--green);
-    color: var(--green);
-    box-shadow: 0 0 12px #69ff8535;
+/* 상단 바: 로고 + 페이즈 + 라운드 */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: rgba(16,16,28,.95);
+  flex-shrink: 0;
 }
 
-.btn-rest:hover {
-    border-color: var(--dim);
+.logo {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 18px;
+  letter-spacing: 3px;
+  padding: 0 20px;
+  background: linear-gradient(135deg, var(--blue), var(--white));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  white-space: nowrap;
+  border-right: 1px solid var(--border);
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
-.btn-down:hover {
-    border-color: var(--blue);
-    color: var(--blue);
-    box-shadow: 0 0 12px #4fc3f735;
+.phase-bar {
+  flex: 1;
+  display: flex;
+  border-right: 1px solid var(--border);
 }
 
-.btn-start {
-    border-color: var(--yellow);
-    color: var(--yellow);
+.phase-half {
+  flex: 1;
+  text-align: center;
+  padding: 14px 8px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+  background: transparent;
+  transition: all .2s;
+  border-right: 1px solid var(--border);
+}
+.phase-half:last-child { border-right: none; }
+
+.phase-half.active-show  { background: var(--blue);   color: #000; font-weight: 700; }
+.phase-half.active-input { background: var(--yellow); color: #000; font-weight: 700; }
+
+.round-info {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  white-space: nowrap;
 }
 
-.btn-start:hover {
-    box-shadow: 0 0 18px #ffd60a45;
+.round-label {
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
-/* ── OVERLAYS ── */
+.round-val {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 16px;
+  color: var(--blue);
+}
+
+/* 슬롯 그리드 */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 260px);
+  gap: 1px;
+  background: var(--border);
+  flex: none;
+  margin: 16px;
+}
+
+.slot {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  transition: background .15s, box-shadow .15s;
+  cursor: default;
+}
+
+.slot-num {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-size: 10px;
+  color: var(--dim);
+  font-family: 'Black Han Sans', sans-serif;
+}
+
+.slot-text {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 3rem;
+  letter-spacing: 1px;
+  color: var(--white);
+}
+
+.slot-hint {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--dim);
+}
+
+/* slot 상태 */
+.slot.s-hidden .slot-text,
+.slot.s-hidden .slot-hint { opacity: 0; }
+
+.slot.s-active {
+  background: rgba(255,214,10,.06);
+  box-shadow: inset 0 0 0 2px var(--yellow);
+}
+.slot.s-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--yellow);
+  opacity: 0;
+  animation: ring .45s ease-out forwards;
+}
+@keyframes ring {
+  0%   { opacity: .7; transform: scale(.88); }
+  100% { opacity: 0;  transform: scale(1.04); }
+}
+
+.slot.s-ok   { background: rgba(105,255,133,.07); box-shadow: inset 0 0 0 1px var(--green); }
+.slot.s-miss { background: rgba(255,77,109,.08);  box-shadow: inset 0 0 0 1px var(--red); }
+
+/* pip 행 */
+.pip-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+  min-height: 36px;
+  align-items: center;
+}
+
+.pip {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  transition: all .2s;
+}
+.pip.p-ok   { background: var(--green); border-color: var(--green); }
+.pip.p-miss { background: var(--red);   border-color: var(--red); }
+
+/* ══════════════════════════════════════
+   OVERLAYS
+══════════════════════════════════════ */
 .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(8, 8, 16, .96);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-    backdrop-filter: blur(8px);
-    gap: 12px;
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,16,.96);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+  gap: 16px;
 }
-
-.overlay.hidden {
-    display: none;
-}
+.overlay.hidden { display: none; }
 
 .ov-title {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 44px;
-    letter-spacing: 6px;
-    background: linear-gradient(135deg, var(--blue), var(--white));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 48px;
+  letter-spacing: 6px;
+  background: linear-gradient(135deg, var(--blue), var(--white));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .ov-score {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 60px;
-    color: var(--yellow);
-    text-shadow: 0 0 40px #ffd60a60;
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 64px;
+  color: var(--yellow);
+  text-shadow: 0 0 40px #ffd60a60;
 }
 
 .ov-detail {
-    display: flex;
-    gap: 24px;
-    font-size: 12px;
-    letter-spacing: 2px;
-    color: var(--dim);
+  display: flex;
+  gap: 28px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--dim);
 }
-
-.ov-detail b {
-    color: var(--text);
-}
+.ov-detail b { color: var(--text); }
 
 .ov-note {
-    font-size: 11px;
-    color: var(--dim);
-    letter-spacing: 2px;
-    text-align: center;
-    line-height: 2.4;
-    border: 1px solid var(--border);
-    padding: 14px 24px;
-    background: var(--surface);
+  font-size: 12px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-align: center;
+  line-height: 2.2;
+  border: 1px solid var(--border);
+  padding: 16px 32px;
+  background: var(--surface);
 }
 
 .ov-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 4px;
+  display: flex;
+  gap: 10px;
 }
+
+/* 오버레이용 버튼 오버라이드 */
+.overlay .btn {
+  border: 1px solid var(--border);
+  padding: 14px 36px;
+  font-size: 15px;
+}
+.overlay .btn-start {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+.overlay .btn-start:hover { box-shadow: 0 0 20px #ffd60a45; }
+.overlay .btn:not(.btn-start):hover { border-color: var(--dim); color: var(--text); }
