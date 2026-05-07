@@ -512,6 +512,7 @@ const Game = (() => {
   // ─────────────────────────────
   function nextRound(isReverse) {
     if (state.round >= TOTAL_ROUNDS) return endGame(true);
+    if(state.round===5) isReverse = true; // 5라운드부터 청개구리 모드
     clearAll();
 
     state.round++;
