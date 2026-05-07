@@ -106,35 +106,70 @@ const Audio$ = (() => {
 // ══════════════════════════════════════════════
 //  COMMAND POOL
 // ══════════════════════════════════════════════
-const POOL = {
-  UP: [
-    { text: "뛰어!", action: "UP" },
-    //{ text: "점프!", action: "UP" },
-    //{ text: "위로!", action: "UP" },
-    //{ text: "올라!", action: "UP" },
-    //{ text: "도약!", action: "UP" },
-  ],
-  DOWN: [
-    { text: "엎드려!", action: "DOWN" },
-    //{ text: "아래로!", action: "DOWN" },
-    //{ text: "숙여!", action: "DOWN" },
-    //{ text: "낮춰!", action: "DOWN" },
-    //{ text: "내려!", action: "DOWN" },
-  ],
-  REST: [
-    { text: "가만히", action: "REST" },
-    //{ text: "그대로", action: "REST" },
-    //{ text: "쉬어", action: "REST" },
-    //{ text: "멈춰", action: "REST" },
-  ],
+const POOL_BY_ROUND = {
+  1: {
+    UP: [{ text: "뛰어!", action: "UP" }],
+    DOWN: [{ text: "엎드려!", action: "DOWN" }],
+    REST: [{ text: "가만히", action: "REST" }],
+  },
+  2: {
+    UP: [
+      { text: "뛰어!", action: "UP" },
+      { text: "점프!", action: "UP" },
+    ],
+    DOWN: [
+      { text: "엎드려!", action: "DOWN" },
+      { text: "아래로!", action: "DOWN" },
+    ],
+    REST: [
+      { text: "가만히", action: "REST" },
+      { text: "그대로", action: "REST" },
+    ],
+  },
+  3: {
+    UP: [
+      { text: "뛰어!", action: "UP" },
+      { text: "점프!", action: "UP" },
+      { text: "위로!", action: "UP" },
+    ],
+    DOWN: [
+      { text: "엎드려!", action: "DOWN" },
+      { text: "아래로!", action: "DOWN" },
+      { text: "숙여!", action: "DOWN" },
+    ],
+    REST: [
+      { text: "가만히", action: "REST" },
+      { text: "그대로", action: "REST" },
+      { text: "쉬어", action: "REST" },
+    ],
+  },
+  // 4, 5라운드는 청개구리 모드라 REVERSE_POOL 사용
+};
+function getPoolLevel(round) {
+  if (round <= 2) return 1;
+  if (round <= 4) return 2;
+  return 3;
+}
+
+const REVERSE_POOL = {
+  UP: [{ text: "엎드려!", action: "UP" }],
+  DOWN: [{ text: "뛰어!", action: "DOWN" }],
+  REST: [{ text: "가만히", action: "REST" }],
 };
 
-function pickCmd(action) {
-  const p = POOL[action];
+function pickCmd(action,round) {
+  //console.log("pickCmd", action);
+  const level = getPoolLevel(round);
+  const p = POOL_BY_ROUND[level][action];
+  return { ...p[Math.floor(Math.random() * p.length)] };
+}
+function pickReverseCmd(action) {
+  //console.log("pickReverseCmd", action);
+  const p = REVERSE_POOL[action];
   return { ...p[Math.floor(Math.random() * p.length)] };
 }
 
-function genSequence() {
+function genSequence(isReverse,round) {
   // Always include at least one of each, 4th slot random
   const base = ["UP", "DOWN", "REST"];
 
@@ -155,7 +190,7 @@ function genSequence() {
     const j = Math.floor(Math.random() * (i + 1));
     [bag[i], bag[j]] = [bag[j], bag[i]];
   }
-  return bag.map((a) => pickCmd(a));
+  return bag.map((a) => (isReverse ? pickReverseCmd(a) : pickCmd(a, round)));
 }
 
 // ══════════════════════════════════════════════
@@ -181,8 +216,8 @@ const InputHandler = (() => {
 
   document.addEventListener("keydown", (e) => {
     if (e.repeat) return;
-    if (e.key === "ArrowUp"||e.key ==="w") press("UP");
-    else if (e.key === "ArrowDown"||e.key ==="s") press("DOWN");
+    if (e.key === "ArrowUp" || e.key === "w") press("UP");
+    else if (e.key === "ArrowDown" || e.key === "s") press("DOWN");
     else if (e.key === " " || e.key === "ArrowRight") {
       e.preventDefault();
       press("REST");
@@ -225,36 +260,24 @@ const UI = (() => {
       d.innerHTML = `
         <span class="slot-num">${i + 1}</span>
         <span class="slot-text" id="st${i}"></span>
-        <span class="slot-icon" id="si${i}">?</span>
         <span class="slot-hint" id="sh${i}"></span>
-        <div class="slot-tbar"><div class="slot-tfill" id="sf${i}"></div></div>`;
+        `;
       slotsEl.appendChild(d);
     }
   }
-
   function revealSlot(i, cmd) {
     const s = document.getElementById("slot" + i);
     s.className = "slot " + CLS[cmd.action];
-    document.getElementById("si" + i).textContent = ICON[cmd.action];
-    document.getElementById("si" + i).style.color = COLOR[cmd.action];
+
     document.getElementById("st" + i).textContent = cmd.text;
-    document.getElementById("st" + i).style.color = COLOR[cmd.action];
-    document.getElementById("sh" + i).textContent = HINT[cmd.action];
+    // document.getElementById("st" + i).style.color = COLOR[cmd.action];
+    // document.getElementById("sh" + i).textContent = HINT[cmd.action];
   }
 
   function setSlotActive(i) {
     const s = document.getElementById("slot" + i);
     s.classList.add("s-active");
     // animate timing bar full → empty over BEAT_MS
-    const f = document.getElementById("sf" + i);
-    f.style.transition = "none";
-    f.style.transform = "scaleX(1)";
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        f.style.transition = `transform ${window._BEAT_MS}ms linear`;
-        f.style.transform = "scaleX(0)";
-      }),
-    );
   }
 
   function clearSlotActive(i) {
@@ -398,11 +421,19 @@ const UI = (() => {
 //  GAME CONTROLLER
 // ══════════════════════════════════════════════
 const Game = (() => {
-  const TOTAL_ROUNDS = 5;
-  const BEAT_MS = 328; //작게하면 빨라짐
-  const PERFECT_MS = 220;
-  const OK_MS = 300;
+  const TOTAL_ROUNDS = 10;
+  // const BEAT_MS_FAST = 328; //작게하면 빨라짐
+  // // 퍼펙트 판정이 되는 최대 얼리 타이밍 (ms)
+  // const PERFECT_MS_FAST = 100;
+  // const OK_MS_FAST = 220;
+  // const DELAY_MS_FAST = 150;
+
+  const BEAT_MS = 375; //작게하면 빨라짐
+  // 퍼펙트 판정이 되는 최대 얼리 타이밍 (ms)
+  const PERFECT_MS = 100;
+  const OK_MS = 220;
   const MAX_LIFE = 5;
+  const DELAY_MS = 0;
 
   window._BEAT_MS = BEAT_MS;
 
@@ -426,7 +457,7 @@ const Game = (() => {
   // START
   // ─────────────────────────────
 
-  async function start() {
+  async function start(isReverse) {
     BGM.stop();
     UI.hideStart();
     Audio$.resume();
@@ -445,16 +476,19 @@ const Game = (() => {
     UI.updateHUD(0, 0, MAX_LIFE);
     //UI.setTimingStatus("대기중...");
     BGM.play(0);
-    T(() => {
-      nextRound();
-    }, BEAT_MS * 8+150);
+    T(
+      () => {
+        nextRound(isReverse);
+      },
+      BEAT_MS * 8 + DELAY_MS,
+    );
   }
 
-  function restart() {
+  function restart(isReverse) {
     UI.hideResult();
     clearAll();
     BGM.stop();
-    start();
+    start(isReverse);
   }
 
   function goTitle() {
@@ -462,27 +496,27 @@ const Game = (() => {
     clearAll();
     UI.showStart();
   }
-  async function handleStart() {
+  async function handleStart(isReverse) {
     Audio$.resume();
     UI.showLoading(); // 있으면
     await preloadBGM(); // 있으면
 
     setTimeout(() => {
       UI.hideLoading();
-      start();
+      start(isReverse);
     }, 3000);
-  
   }
 
   // ─────────────────────────────
   // ROUND
   // ─────────────────────────────
-  function nextRound() {
+  function nextRound(isReverse) {
     if (state.round >= TOTAL_ROUNDS) return endGame(true);
+    if(state.round===5) isReverse = true; // 5라운드부터 청개구리 모드
     clearAll();
 
     state.round++;
-    state.seq = genSequence();
+    state.seq = genSequence(isReverse, state.round);
     roundSlotResults = Array(8).fill(false);
 
     UI.buildSlots();
@@ -521,8 +555,7 @@ const Game = (() => {
     // INPUT BEATS
     // ─────────────────────────
     for (let i = 0; i < 8; i++) {
-      const beatTime = inputStart + i * BEAT_MS;
-
+      const beatTime = inputStart + i * BEAT_MS; // 입력 허용을 비트 시작보다 약간 앞당김 (음향 큐와 시각 효과를 고려)
       T(() => {
         Audio$.tick();
         UI.setSlotActive(i);
@@ -534,11 +567,20 @@ const Game = (() => {
         InputHandler.setCallback((dir, pressTime) => {
           if (judged) return;
           judged = true;
-          InputHandler.setCallback(null);
+          // 콜백을 즉시 null로 치우지 말고, 다음 비트 시작 직전에 null 처리
+          // handleJudge 안에서 setCallback(null) 제거
 
-          const diffMs = pressTime - beatTime; // ⭐ 핵심 수정
-
+          const diffMs = pressTime - beatTime;
           handleJudge(i, dir, expected, diffMs);
+
+          // 다음 슬롯 비트 시작 100ms 전까지 입력 차단
+          const lockUntil = beatTime + BEAT_MS - 80;
+          const remaining = lockUntil - performance.now();
+          if (remaining > 0) {
+            setTimeout(() => InputHandler.setCallback(null), remaining);
+          } else {
+            InputHandler.setCallback(null);
+          }
         });
 
         // ───── AUTO MISS ─────
@@ -554,9 +596,9 @@ const Game = (() => {
     // ─────────────────────────
     // NEXT ROUND
     // ─────────────────────────
-    T(() => endRound(), inputStart + 8 * BEAT_MS - now);
+    T(() => endRound(isReverse), inputStart + 8 * BEAT_MS - now);
   }
-  function endRound() {
+  function endRound(isReverse) {
     InputHandler.setCallback(null);
     UI.setPhase("");
 
@@ -566,7 +608,7 @@ const Game = (() => {
       if (state.round >= TOTAL_ROUNDS) {
         endGame(true);
       } else {
-        nextRound();
+        nextRound(isReverse);
       }
     }, 0);
   }
@@ -597,7 +639,12 @@ const Game = (() => {
       return;
     }
 
-    const grade = abs <= PERFECT_MS ? "perfect" : abs <= OK_MS ? "ok" : "miss";
+    const grade =
+      abs <= PERFECT_MS
+        ? "perfect"
+        : abs <= OK_MS
+          ? "ok" // early perfect 범위 밖이어도 ok로 잡힘
+          : "miss";
 
     UI.setSlotResult(i, grade);
     //UI.showTimingHit(diffMs, grade);
@@ -659,7 +706,9 @@ const Game = (() => {
 
   function endGame(success) {
     InputHandler.setCallback(null);
+
     T(() => {
+      BGM.stop();
       UI.showResult(
         state.score,
         state.pCount,
