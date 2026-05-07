@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>청기백기 리듬게임</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <!-- START SCREEN -->
@@ -62,7 +64,7 @@
       </div>
 
       <div class="controls">
-        <button class="btn btn-up"   id="btnUp"   onclick="InputHandler.press('UP')">
+        <button class="btn btn-up" id="btnUp" onclick="InputHandler.press('UP')">
           ▲ 뛰어
           <span class="btn-key">↑ / W</span>
         </button>
@@ -94,10 +96,14 @@
       <div class="slots" id="slotsEl"></div>
 
       <div class="pip-row" id="pipRow"></div>
+      <div class="round-announce" id="roundAnnounce"></div>
     </div>
 
   </div>
 
   <script src="script.js"></script>
 </body>
+<audio id="frogSfx" src="./sfx/frog.mp3" preload="auto"></audio>
+<div class="frog-flash" id="frogFlash"></div>
+
 </html>

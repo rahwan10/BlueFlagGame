@@ -100,7 +100,12 @@ const Audio$ = (() => {
   const ok = () => tone(880, 0.1, 0.25);
   const miss = () => tone(160, 0.22, 0.3, "sawtooth");
   const restOk = () => tone(440, 0.08, 0.2);
-  return { resume, reveal, cue, tick, perfect, ok, miss, restOk };
+  const frog = () => {
+    const el = document.getElementById("frogSfx");
+    el.currentTime = 0;
+    el.play();
+  };
+  return { resume, reveal, cue, tick, perfect, ok, miss, restOk, frog };
 })();
 
 // ══════════════════════════════════════════════
@@ -157,7 +162,7 @@ const REVERSE_POOL = {
   REST: [{ text: "가만히", action: "REST" }],
 };
 
-function pickCmd(action,round) {
+function pickCmd(action, round) {
   //console.log("pickCmd", action);
   const level = getPoolLevel(round);
   const p = POOL_BY_ROUND[level][action];
@@ -169,7 +174,7 @@ function pickReverseCmd(action) {
   return { ...p[Math.floor(Math.random() * p.length)] };
 }
 
-function genSequence(isReverse,round) {
+function genSequence(isReverse, round) {
   // Always include at least one of each, 4th slot random
   const base = ["UP", "DOWN", "REST"];
 
@@ -312,28 +317,6 @@ const UI = (() => {
       "phase-half" + (p === "input" ? " active-input" : "");
   }
 
-  // ── Timing visualizer
-  //   function showTimingHit(diffMs, grade) {
-  //     // diffMs: signed, negative = early, positive = late
-  //     // map to 0–100% where 50% = perfect center, ±800ms = full range
-  //     const range = 800;
-  //     const pct = 50 + (diffMs / range) * 100;
-  //     const clamped = Math.max(2, Math.min(98, pct));
-  //     timingHit.style.left = clamped + "%";
-  //     timingHit.className = `timing-hit show h-${grade}`;
-  //     timingStatus.textContent =
-  //       grade === "miss"
-  //         ? `MISS  (${diffMs > 0 ? "+" : ""}${Math.round(diffMs)}ms)`
-  //         : `${grade.toUpperCase()}  (${diffMs > 0 ? "+" : ""}${Math.round(diffMs)}ms)`;
-  //     setTimeout(() => {
-  //       timingHit.classList.remove("show");
-  //     }, 700);
-  //   }
-
-  //   function setTimingStatus(txt) {
-  //     timingStatus.textContent = txt;
-  //   }
-
   // ── Character
 
   // ── Judgment popup
@@ -395,6 +378,13 @@ const UI = (() => {
     loadingEl.classList.add("hidden");
   }
 
+  function showAnnounce(text, color = "var(--green)") {
+    const el = document.getElementById("roundAnnounce");
+    el.textContent = text;
+    el.style.color = color;
+    el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 2500);
+  }
   return {
     buildSlots,
     revealSlot,
@@ -414,6 +404,7 @@ const UI = (() => {
     hideStart,
     showResult,
     hideResult,
+    showAnnounce,
   };
 })();
 
@@ -511,8 +502,23 @@ const Game = (() => {
   // ROUND
   // ─────────────────────────────
   function nextRound(isReverse) {
+    Audio$.frog();
     if (state.round >= TOTAL_ROUNDS) return endGame(true);
-    if(state.round===5) isReverse = true; // 5라운드부터 청개구리 모드
+    if (state.round === 5) {
+      isReverse = true;
+      // 5라운드부터 청개구리 모드
+
+      const el = document.getElementById("frogFlash");
+      el.classList.remove("on");
+      void el.offsetWidth; // reflow로 애니메이션 리셋
+      el.classList.add("on");
+    }
+    if (state.round % 2 === 1 && state.round > 1) {
+      UI.showAnnounce("⚡ LEVEL UP!");
+    }
+    if (isReverse) {
+      UI.showAnnounce("🐸 청개구리 모드!", "var(--yellow)");
+    }
     clearAll();
 
     state.round++;
