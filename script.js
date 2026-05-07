@@ -106,28 +106,50 @@ const Audio$ = (() => {
 // ══════════════════════════════════════════════
 //  COMMAND POOL
 // ══════════════════════════════════════════════
-const POOL = {
-  UP: [
-    { text: "뛰어!", action: "UP" },
-    { text: "점프!", action: "UP" },
-    { text: "위로!", action: "UP" },
-    //{ text: "올라!", action: "UP" },
-    //{ text: "도약!", action: "UP" },
-  ],
-  DOWN: [
-    { text: "엎드려!", action: "DOWN" },
-    { text: "아래로!", action: "DOWN" },
-    { text: "숙여!", action: "DOWN" },
-    //{ text: "낮춰!", action: "DOWN" },
-    //{ text: "내려!", action: "DOWN" },
-  ],
-  REST: [
-    { text: "가만히", action: "REST" },
-    { text: "그대로", action: "REST" },
-    //{ text: "쉬어", action: "REST" },
-    //{ text: "멈춰", action: "REST" },
-  ],
+const POOL_BY_ROUND = {
+  1: {
+    UP: [{ text: "뛰어!", action: "UP" }],
+    DOWN: [{ text: "엎드려!", action: "DOWN" }],
+    REST: [{ text: "가만히", action: "REST" }],
+  },
+  2: {
+    UP: [
+      { text: "뛰어!", action: "UP" },
+      { text: "점프!", action: "UP" },
+    ],
+    DOWN: [
+      { text: "엎드려!", action: "DOWN" },
+      { text: "아래로!", action: "DOWN" },
+    ],
+    REST: [
+      { text: "가만히", action: "REST" },
+      { text: "그대로", action: "REST" },
+    ],
+  },
+  3: {
+    UP: [
+      { text: "뛰어!", action: "UP" },
+      { text: "점프!", action: "UP" },
+      { text: "위로!", action: "UP" },
+    ],
+    DOWN: [
+      { text: "엎드려!", action: "DOWN" },
+      { text: "아래로!", action: "DOWN" },
+      { text: "숙여!", action: "DOWN" },
+    ],
+    REST: [
+      { text: "가만히", action: "REST" },
+      { text: "그대로", action: "REST" },
+      { text: "쉬어", action: "REST" },
+    ],
+  },
+  // 4, 5라운드는 청개구리 모드라 REVERSE_POOL 사용
 };
+function getPoolLevel(round) {
+  if (round <= 2) return 1;
+  if (round <= 4) return 2;
+  return 3;
+}
 
 const REVERSE_POOL = {
   UP: [{ text: "엎드려!", action: "UP" }],
@@ -135,18 +157,19 @@ const REVERSE_POOL = {
   REST: [{ text: "가만히", action: "REST" }],
 };
 
-function pickCmd(action) {
-  console.log("pickCmd", action);
-  const p = POOL[action];
+function pickCmd(action,round) {
+  //console.log("pickCmd", action);
+  const level = getPoolLevel(round);
+  const p = POOL_BY_ROUND[level][action];
   return { ...p[Math.floor(Math.random() * p.length)] };
 }
 function pickReverseCmd(action) {
-  console.log("pickReverseCmd", action);
+  //console.log("pickReverseCmd", action);
   const p = REVERSE_POOL[action];
   return { ...p[Math.floor(Math.random() * p.length)] };
 }
 
-function genSequence(isReverse) {
+function genSequence(isReverse,round) {
   // Always include at least one of each, 4th slot random
   const base = ["UP", "DOWN", "REST"];
 
@@ -167,7 +190,7 @@ function genSequence(isReverse) {
     const j = Math.floor(Math.random() * (i + 1));
     [bag[i], bag[j]] = [bag[j], bag[i]];
   }
-  return bag.map((a) => (isReverse ? pickReverseCmd(a) : pickCmd(a)));
+  return bag.map((a) => (isReverse ? pickReverseCmd(a) : pickCmd(a, round)));
 }
 
 // ══════════════════════════════════════════════
@@ -398,14 +421,14 @@ const UI = (() => {
 //  GAME CONTROLLER
 // ══════════════════════════════════════════════
 const Game = (() => {
-  const TOTAL_ROUNDS = 5;
+  const TOTAL_ROUNDS = 10;
   // const BEAT_MS_FAST = 328; //작게하면 빨라짐
   // // 퍼펙트 판정이 되는 최대 얼리 타이밍 (ms)
   // const PERFECT_MS_FAST = 100;
   // const OK_MS_FAST = 220;
   // const DELAY_MS_FAST = 150;
 
-  const BEAT_MS =375 ; //작게하면 빨라짐
+  const BEAT_MS = 375; //작게하면 빨라짐
   // 퍼펙트 판정이 되는 최대 얼리 타이밍 (ms)
   const PERFECT_MS = 100;
   const OK_MS = 220;
@@ -492,7 +515,7 @@ const Game = (() => {
     clearAll();
 
     state.round++;
-    state.seq = genSequence(isReverse);
+    state.seq = genSequence(isReverse, state.round);
     roundSlotResults = Array(8).fill(false);
 
     UI.buildSlots();
@@ -682,7 +705,7 @@ const Game = (() => {
 
   function endGame(success) {
     InputHandler.setCallback(null);
-    
+
     T(() => {
       BGM.stop();
       UI.showResult(
