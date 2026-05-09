@@ -380,10 +380,16 @@ const UI = (() => {
 
   function showAnnounce(text, color = "var(--green)") {
     const el = document.getElementById("roundAnnounce");
+    // 이전 타이머 취소
+    if (el._timer) clearTimeout(el._timer);
+
     el.textContent = text;
     el.style.color = color;
     el.classList.add("show");
-    setTimeout(() => el.classList.remove("show"), 2500);
+    el._timer = setTimeout(() => {
+      el.classList.remove("show");
+      el._timer = null;
+    }, 2500);
   }
   return {
     buildSlots,
