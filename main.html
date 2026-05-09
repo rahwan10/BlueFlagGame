@@ -40,9 +40,32 @@
   </div>
 
   <div id="app">
-
+    <div class="round-announce" id="roundAnnounce"></div>
     <!-- ── 왼쪽: 캐릭터 + HUD + 버튼 ── -->
     <div class="left-col">
+      <button class="btn btn-up" id="btnUp" onclick="InputHandler.press('UP')">
+        ▲ 뛰어
+        <span class="btn-key">↑ / W</span>
+      </button>
+
+    </div>
+    <!-- ── 중앙: 페이즈 + 슬롯 + 라운드 ── -->
+    <div class="center-col">
+      <div class="top-bar">
+        <div class="logo">청기백기</div>
+        <div class="phase-bar">
+          <div class="phase-half" id="phaseShow">👁 보기</div>
+          <div class="phase-half" id="phaseInput">✋ 입력</div>
+        </div>
+        <div class="round-info">
+          <span class="round-label">ROUND</span>
+          <span class="round-val" id="roundEl">- / -</span>
+        </div>
+      </div>
+
+      <div class="slots" id="slotsEl"></div>
+
+      <div class="pip-row" id="pipRow"></div>
       <div class="hud">
         <div class="hud-item">
           <div class="hud-label">SCORE</div>
@@ -64,46 +87,22 @@
       </div>
 
       <div class="controls">
-        <button class="btn btn-up" id="btnUp" onclick="InputHandler.press('UP')">
-          ▲ 뛰어
-          <span class="btn-key">↑ / W</span>
-        </button>
-        <button class="btn btn-rest" id="btnRest" onclick="InputHandler.press('REST')">
-          ― 쉬기
-          <span class="btn-key">Space</span>
-        </button>
-        <button class="btn btn-down" id="btnDown" onclick="InputHandler.press('DOWN')">
-          ▼ 엎드려
-          <span class="btn-key">↓ / S</span>
-        </button>
+
       </div>
+
+
     </div>
-
-    <!-- ── 오른쪽: 페이즈 + 슬롯 + 라운드 ── -->
     <div class="right-col">
-      <div class="top-bar">
-        <div class="logo">청기백기</div>
-        <div class="phase-bar">
-          <div class="phase-half" id="phaseShow">👁 보기</div>
-          <div class="phase-half" id="phaseInput">✋ 입력</div>
-        </div>
-        <div class="round-info">
-          <span class="round-label">ROUND</span>
-          <span class="round-val" id="roundEl">- / -</span>
-        </div>
-      </div>
-
-      <div class="slots" id="slotsEl"></div>
-
-      <div class="pip-row" id="pipRow"></div>
-      <div class="round-announce" id="roundAnnounce"></div>
+      <button class="btn btn-down" id="btnDown" onclick="InputHandler.press('DOWN')">
+        ▼ 엎드려
+        <span class="btn-key">↓ / S</span>
     </div>
 
   </div>
 
   <script src="script.js"></script>
 </body>
-<audio id="frogSfx" src="./sfx/frog.mp3" preload="auto"></audio>
+<audio id="frogSfx" src="./frogSound.mp3" preload="false"></audio>
 <div class="frog-flash" id="frogFlash"></div>
 
 </html>

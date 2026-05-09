@@ -419,12 +419,12 @@ const Game = (() => {
   // const OK_MS_FAST = 220;
   // const DELAY_MS_FAST = 150;
 
-  const BEAT_MS = 375; //작게하면 빨라짐
+  const BEAT_MS = 374.4; //작게하면 빨라짐
   // 퍼펙트 판정이 되는 최대 얼리 타이밍 (ms)
   const PERFECT_MS = 100;
   const OK_MS = 220;
   const MAX_LIFE = 5;
-  const DELAY_MS = 0;
+  const DELAY_MS = -50;
 
   window._BEAT_MS = BEAT_MS;
 
@@ -502,10 +502,11 @@ const Game = (() => {
   // ROUND
   // ─────────────────────────────
   function nextRound(isReverse) {
-    Audio$.frog();
     if (state.round >= TOTAL_ROUNDS) return endGame(true);
-    if (state.round === 5) {
+    state.round++;
+    if (state.round === 6) {
       isReverse = true;
+      Audio$.frog();
       // 5라운드부터 청개구리 모드
 
       const el = document.getElementById("frogFlash");
@@ -513,15 +514,15 @@ const Game = (() => {
       void el.offsetWidth; // reflow로 애니메이션 리셋
       el.classList.add("on");
     }
-    if (state.round % 2 === 1 && state.round > 1) {
+    if (state.round % 2 === 1 && state.round < 6&&state.round>1) {
       UI.showAnnounce("⚡ LEVEL UP!");
     }
-    if (isReverse) {
+    if (state.round === 6) {
       UI.showAnnounce("🐸 청개구리 모드!", "var(--yellow)");
     }
     clearAll();
 
-    state.round++;
+    
     state.seq = genSequence(isReverse, state.round);
     roundSlotResults = Array(8).fill(false);
 
