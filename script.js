@@ -419,7 +419,7 @@ const Game = (() => {
   // const OK_MS_FAST = 220;
   // const DELAY_MS_FAST = 150;
 
-  const BEAT_MS = 374.4; //작게하면 빨라짐
+  const BEAT_MS = 374.6; //작게하면 빨라짐
   // 퍼펙트 판정이 되는 최대 얼리 타이밍 (ms)
   const PERFECT_MS = 100;
   const OK_MS = 220;
@@ -514,7 +514,7 @@ const Game = (() => {
       void el.offsetWidth; // reflow로 애니메이션 리셋
       el.classList.add("on");
     }
-    if (state.round % 2 === 1 && state.round < 6&&state.round>1) {
+    if (state.round % 2 === 1 && state.round < 6 && state.round > 1) {
       UI.showAnnounce("⚡ LEVEL UP!");
     }
     if (state.round === 6) {
@@ -522,7 +522,6 @@ const Game = (() => {
     }
     clearAll();
 
-    
     state.seq = genSequence(isReverse, state.round);
     roundSlotResults = Array(8).fill(false);
 
@@ -727,6 +726,157 @@ const Game = (() => {
   }
 
   return { start, restart, goTitle, handleStart };
+})();
+// ─────────────────────────────
+// tutorial
+// ─────────────────────────────
+const Tutorial = (() => {
+  const STEPS = [
+    // ── 기본 동작
+    { text: "▲ 위 키를 눌러보세요!", action: "UP", guide: "뛰어!" },
+    { text: "▼ 아래 키를 눌러보세요!", action: "DOWN", guide: "엎드려!" },
+    { text: "Space를 누르지 마세요!", action: "REST", guide: "가만히" },
+    // ── 같은 의미 다른 말
+    { text: "같은 뜻이에요! ▲ 눌러보세요", action: "UP", guide: "점프!" },
+    { text: "이것도 같아요! ▼ 눌러보세요", action: "DOWN", guide: "숙여!" },
+    { text: "이것도 쉬는 거예요!", action: "REST", guide: "그대로" },
+    // ── 청개구리 예고 (action: null = 자동진행)
+    { text: "⚠ 청개구리 모드 체험!", action: null, guide: "반대로!" },
+    // ── 청개구리 실습
+    {
+      text: "🐸 엎드려 → 실제론 ▲!",
+      action: "UP",
+      guide: "엎드려!",
+      isRebel: true,
+    },
+    {
+      text: "🐸 뛰어 → 실제론 ▼!",
+      action: "DOWN",
+      guide: "뛰어!",
+      isRebel: true,
+    },
+    // ── 마무리
+    { text: "완벽! 이제 시작해봐요 🎮", action: null, guide: "" },
+  ];
+
+  let stepIdx = 0;
+  let timers = [];
+
+  function T(fn, ms) {
+    const id = setTimeout(fn, ms);
+    timers.push(id);
+    return id;
+  }
+
+  function clearAll() {
+    timers.forEach(clearTimeout);
+    timers = [];
+    InputHandler.setCallback(null);
+  }
+
+  function start() {
+    Audio$.resume();
+    document.getElementById("startScreen").classList.add("hidden");
+    stepIdx = 0;
+    UI.buildSlots();
+    UI.setPhase("");
+    showStep();
+  }
+
+  function showStep() {
+    if (stepIdx >= STEPS.length) {
+      end();
+      return;
+    }
+
+    const step = STEPS[stepIdx];
+
+    // ── action: null → 자동 진행 스텝
+    if (step.action === null) {
+      if (step.guide === "반대로!") {
+        // 청개구리 플래시 + 소리
+        Audio$.frog();
+        const el = document.getElementById("frogFlash");
+        el.classList.remove("on");
+        void el.offsetWidth;
+        el.classList.add("on");
+        UI.showAnnounce(
+          "🐸 청개구리 모드! 반대로 눌러야 해요!",
+          "var(--yellow)",
+        );
+      } else {
+        // 마무리
+        UI.showAnnounce(step.text, "var(--green)");
+        UI.setPhase("");
+      }
+      stepIdx++;
+      T(() => showStep(), 2200);
+      return;
+    }
+
+    // ── 안내 텍스트
+    UI.showAnnounce(step.text, step.isRebel ? "var(--yellow)" : "var(--blue)");
+
+    // ── 슬롯 첫 번째 칸에 가이드 표시
+    UI.buildSlots();
+    const slot = document.getElementById("slot0");
+    slot.className = "slot s-active";
+    document.getElementById("st0").textContent = step.guide;
+    if (step.isRebel) {
+      slot.style.boxShadow = "inset 0 0 0 2px var(--yellow)";
+    }
+
+    UI.setPhase("input");
+    Audio$.tick();
+
+    // ── REST: 안 누르면 통과, 누르면 miss
+    if (step.action === "REST") {
+      InputHandler.setCallback(() => {
+        UI.showJudgment("miss", "REST");
+        Audio$.miss();
+      });
+      T(() => {
+        InputHandler.setCallback(null);
+        slot.className = "slot s-ok";
+        UI.showJudgment("perfect", "REST");
+        Audio$.restOk();
+        charAct("REST");
+        stepIdx++;
+        T(() => showStep(), 800);
+      }, 1800);
+      return;
+    }
+
+    // ── UP / DOWN: 맞으면 통과, 틀리면 재시도
+    InputHandler.setCallback((dir) => {
+      if (dir !== step.action) {
+        UI.showAnnounce(
+          step.isRebel ? "🐸 반대로 누르세요!" : "다시 해보세요!",
+          "var(--red)",
+        );
+        Audio$.miss();
+        return;
+      }
+      InputHandler.setCallback(null);
+      slot.className = "slot s-ok";
+      UI.showJudgment("perfect", step.action);
+      Audio$.perfect();
+      charAct(step.action);
+      stepIdx++;
+      T(() => showStep(), 800);
+    });
+  }
+
+  function end() {
+    clearAll();
+    UI.setPhase("");
+    UI.buildSlots();
+    T(() => {
+      document.getElementById("startScreen").classList.remove("hidden");
+    }, 2500);
+  }
+
+  return { start };
 })();
 
 // init
