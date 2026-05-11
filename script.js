@@ -44,7 +44,7 @@ const BGM = (() => {
   async function init() {
     if (!ctx) ctx = new AudioContext();
 
-    const res = await fetch("bgm.mp3");
+    const res = await fetch("./bgm.mp3");
     const arrayBuffer = await res.arrayBuffer();
     buffer = await ctx.decodeAudioData(arrayBuffer);
   }
