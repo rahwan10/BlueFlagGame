@@ -741,7 +741,7 @@ const Tutorial = (() => {
     // ── 기본 동작
     { text: "▲ 위 키를 눌러보세요!", action: "UP", guide: "뛰어!" },
     { text: "▼ 아래 키를 눌러보세요!", action: "DOWN", guide: "엎드려!" },
-    { text: "Space를 누르지 마세요!", action: "REST", guide: "가만히" },
+    { text: "아무키도 누르지 마세요!", action: "REST", guide: "가만히" },
     // ── 같은 의미 다른 말
     { text: "같은 뜻이에요! ▲ 눌러보세요", action: "UP", guide: "점프!" },
     { text: "이것도 같아요! ▼ 눌러보세요", action: "DOWN", guide: "숙여!" },
