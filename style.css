@@ -453,3 +453,57 @@ body::after {
 #roundAnnounce.show {
   opacity: 1;
 }
+
+/* ── 메트로놈 ── */
+.metronome {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.metro-pivot {
+  width: 10px;
+  height: 10px;
+  background: var(--dim);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 28px;
+}
+
+.metro-arm {
+  width: 3px;
+  background: linear-gradient(to top, var(--blue), var(--dim));
+  border-radius: 2px;
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform-origin: bottom center;
+  transform: translateX(-50%) rotate(-30deg);
+  transition: transform ease-in-out;
+}
+
+.metro-arm.swing {
+  transform: translateX(-50%) rotate(30deg);
+}
+
+.metro-bob {
+  width: 22px;
+  height: 22px;
+  background: var(--blue);
+  border-radius: 50%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 12px #4fc3f780;
+  transition: background 0.05s;
+}
+
+.metro-bob.beat {
+  background: var(--yellow);
+  box-shadow: 0 0 20px #ffd60a80;
+}

@@ -11,6 +11,76 @@ function setCharState(state) {
   currentState = state;
   document.getElementById("char").src = CHAR_STATE[state];
 }
+const Metronome = (() => {
+  let intervalId = null;
+  let swingLeft = true;
+  let armEl = null;
+  let bobEl = null;
+  let beatMs = 374.6;
+
+  function init(ms) {
+    beatMs = ms || window._BEAT_MS || 374.6;
+
+    // 메트로놈 HTML을 .left-col 안에 주입
+    const leftCol = document.querySelector(".left-col");
+    leftCol.insertAdjacentHTML(
+      "afterbegin",
+      `
+      <div class="metronome" id="metronome">
+        <div class="metro-arm" id="metroArm">
+          <div class="metro-bob" id="metroBob"></div>
+        </div>
+        <div class="metro-pivot"></div>
+      </div>
+    `,
+    );
+
+    armEl = document.getElementById("metroArm");
+    bobEl = document.getElementById("metroBob");
+
+    // arm 높이를 left-col 높이에 맞게
+    resizeArm();
+    window.addEventListener("resize", resizeArm);
+  }
+
+  function resizeArm() {
+    if (!armEl) return;
+    const leftCol = document.querySelector(".left-col");
+    const h = leftCol.clientHeight * 0.6;
+    armEl.style.height = h + "px";
+    // bob은 arm 상단에 위치
+    bobEl.style.top = "0px";
+  }
+
+  function start() {
+    if (!armEl) init();
+    stop();
+    swing(); // 즉시 첫 스윙
+    intervalId = setInterval(swing, beatMs);
+  }
+
+  function swing() {
+    if (!armEl) return;
+
+    // arm 방향 전환
+    swingLeft = !swingLeft;
+    armEl.style.transition = `transform ${beatMs * 0.9}ms ease-in-out`;
+    armEl.classList.toggle("swing", swingLeft);
+
+    // bob 색 잠깐 바꾸기
+    bobEl.classList.add("beat");
+    setTimeout(() => bobEl && bobEl.classList.remove("beat"), 80);
+  }
+
+  function stop() {
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  }
+
+  return { init, start, stop };
+})();
 let charTimer;
 function charAct(action) {
   clearTimeout(charTimer);
@@ -37,34 +107,26 @@ async function preloadBGM() {
 }
 
 const BGM = (() => {
-  let ctx;
-  let buffer;
-  let source;
+  let audio;
 
-  async function init() {
-    if (!ctx) ctx = new AudioContext();
-
-    const res = await fetch("./bgm.mp3");
-    const arrayBuffer = await res.arrayBuffer();
-    buffer = await ctx.decodeAudioData(arrayBuffer);
+  function init() {
+    audio = new Audio("bgm.mp3");
+    audio.loop = true;
+    audio.preload = "auto";
   }
-  let startTime = 0;
-  function play(startAt = 0) {
-    if (!ctx || !buffer) return;
 
-    source = ctx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(ctx.destination);
-
-    const now = ctx.currentTime;
-    source.start(now, startAt); // ⭐ 정확한 싱크 시작
+  function play() {
+    if (!audio) init();
+    audio.play();
   }
 
   function stop() {
-    if (source) source.stop();
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
   }
 
-  return { init, play, stop, ctx };
+  return { init, play, stop };
 })();
 const Audio$ = (() => {
   let ctx = null;
@@ -430,7 +492,7 @@ const Game = (() => {
   const PERFECT_MS = 100;
   const OK_MS = 220;
   const MAX_LIFE = 5;
-  const DELAY_MS = -50;
+  const DELAY_MS = -0;
 
   window._BEAT_MS = BEAT_MS;
 
@@ -476,6 +538,7 @@ const Game = (() => {
     T(
       () => {
         nextRound(isReverse);
+        Metronome.start();
       },
       BEAT_MS * 8 + DELAY_MS,
     );
@@ -489,6 +552,7 @@ const Game = (() => {
   }
 
   function goTitle() {
+    Metronome.stop();
     UI.hideResult();
     clearAll();
     UI.showStart();
@@ -717,6 +781,7 @@ const Game = (() => {
   }
 
   function endGame(success) {
+    Metronome.stop();
     InputHandler.setCallback(null);
 
     T(() => {
