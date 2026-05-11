@@ -506,6 +506,7 @@ const Game = (() => {
     return id;
   }
 
+  
   function clearAll() {
     timers.forEach(clearTimeout);
     timers = [];
