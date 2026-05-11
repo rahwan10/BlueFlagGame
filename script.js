@@ -513,7 +513,7 @@ const Game = (() => {
   }
 
   // ─────────────────────────────
-  // START
+  // STAR
   // ─────────────────────────────
 
   async function start(isReverse) {
