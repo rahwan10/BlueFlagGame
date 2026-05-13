@@ -214,7 +214,7 @@ const POOL_BY_ROUND = {
 };
 function getPoolLevel(round) {
   if (round <= 3) return 1;
-  if (round <= 6) return 2;
+  if (round <= 5) return 2;
   return 3;
 }
 
@@ -397,7 +397,6 @@ const UI = (() => {
   function updateHUD(score, combo, life) {
     scoreEl.textContent = score;
     comboEl.textContent = combo;
-    if (life<0) life=0;
     lifeEl.textContent =
       "❤".repeat(Math.max(0, life)) + "🖤".repeat(Math.max(0, 5 - life));
   }
@@ -585,10 +584,10 @@ const Game = (() => {
       void el.offsetWidth; // reflow로 애니메이션 리셋
       el.classList.add("on");
     }
-    if (state.round % 2 === 1 && state.round < 6 && state.round > 1) {
+    if (state.round === 3 || state.round === 5) {
       UI.showAnnounce("⚡ LEVEL UP!");
     }
-    if (state.round === 6) {
+    if (state.round === 8) {
       UI.showAnnounce("🐸 청개구리 모드!", "var(--yellow)");
     }
     clearAll();
@@ -769,7 +768,10 @@ const Game = (() => {
     } else {
       state.combo = 0;
       state.life--;
-      state.score -= 100;
+      if (state.life < 0) {
+        state.life = 0;
+        state.score -= 150;
+      }
       state.mCount++;
     }
 
