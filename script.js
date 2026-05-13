@@ -213,8 +213,8 @@ const POOL_BY_ROUND = {
   // 4, 5라운드는 청개구리 모드라 REVERSE_POOL 사용
 };
 function getPoolLevel(round) {
-  if (round <= 2) return 1;
-  if (round <= 4) return 2;
+  if (round <= 3) return 1;
+  if (round <= 6) return 2;
   return 3;
 }
 
@@ -575,10 +575,10 @@ const Game = (() => {
   function nextRound(isReverse) {
     if (state.round >= TOTAL_ROUNDS) return endGame(true);
     state.round++;
-    if (state.round === 6) {
+    if (state.round === 8) {
       isReverse = true;
       Audio$.frog();
-      // 5라운드부터 청개구리 모드
+      // 8라운드부터 청개구리 모드
 
       const el = document.getElementById("frogFlash");
       el.classList.remove("on");
