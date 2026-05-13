@@ -561,11 +561,8 @@ const Game = (() => {
     Audio$.resume();
     UI.showLoading(); // 있으면
     await preloadBGM(); // 있으면
-
-    setTimeout(() => {
-      UI.hideLoading();
+    UI.hideLoading();
       start(isReverse);
-    }, 3000);
   }
 
   // ─────────────────────────────
