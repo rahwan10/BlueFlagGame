@@ -538,7 +538,7 @@ const Game = (() => {
     T(
       () => {
         nextRound(isReverse);
-        Metronome.start();
+        // Metronome.start();
       },
       BEAT_MS * 8 + DELAY_MS,
     );
@@ -552,7 +552,7 @@ const Game = (() => {
   }
 
   function goTitle() {
-    Metronome.stop();
+    //Metronome.stop();
     UI.hideResult();
     clearAll();
     UI.showStart();
@@ -785,7 +785,7 @@ const Game = (() => {
   }
 
   function endGame(success) {
-    Metronome.stop();
+    //Metronome.stop();
     InputHandler.setCallback(null);
 
     T(() => {
