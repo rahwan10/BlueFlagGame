@@ -397,8 +397,9 @@ const UI = (() => {
   function updateHUD(score, combo, life) {
     scoreEl.textContent = score;
     comboEl.textContent = combo;
+    if (life<0) life=0;
     lifeEl.textContent =
-      "❤".repeat(Math.max(0, life)) + "🖤".repeat(Math.max(0, 3 - life));
+      "❤".repeat(Math.max(0, life)) + "🖤".repeat(Math.max(0, 5 - life));
   }
 
   // ── Round / pips
@@ -768,16 +769,17 @@ const Game = (() => {
     } else {
       state.combo = 0;
       state.life--;
+      state.score -= 100;
       state.mCount++;
     }
 
     UI.updateHUD(state.score, state.combo, state.life);
 
-    if (state.life <= 0) {
-      clearAll();
-      BGM.stop();
-      T(() => endGame(false), 0);
-    }
+    // if (state.life <= 0) {
+    //   clearAll();
+    //   BGM.stop();
+    //   T(() => endGame(false), 0);
+    // }
   }
 
   function endGame(success) {
