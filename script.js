@@ -952,3 +952,56 @@ const Tutorial = (() => {
 
 // init
 UI.showStart();
+
+// leaderboard.js
+
+const submitBtn = document.getElementById("submitBtn");
+const userIdInput = document.getElementById("userId");
+const resDetail = document.getElementById("resDetail");
+const resScore = document.getElementById("resScore");
+
+submitBtn.addEventListener("click", async () => {
+  const userId = userIdInput.value.trim();
+
+  // 점수 가져오기
+  const score = Number(resScore.textContent);
+
+  if (!userId) {
+    resDetail.textContent = "아이디를 입력해주세요.";
+    return;
+  }
+
+  try {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "전송 중...";
+
+    const response = await fetch("https://서버주소/api/leaderboard", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gameName: "blue-flag-game",
+        userId: userId,
+        score: score,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("POST 실패");
+    }
+
+    const data = await response.json();
+
+    console.log(data);
+
+    resDetail.textContent = data.message || "점수가 등록되었습니다.";
+  } catch (error) {
+    console.error(error);
+
+    resDetail.textContent = "점수 등록 중 오류가 발생했습니다.";
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "확인";
+  }
+});
