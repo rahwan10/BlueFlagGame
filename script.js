@@ -737,7 +737,7 @@ const Game = (() => {
 
   function handleMiss(i, expected) {
     if (expected === "REST") {
-      UI.setSlotResult(i, "ok");
+      UI.setSlotResult(i, "perfect");
       //UI.showTimingHit(0, "perfect");
       UI.showJudgment("perfect", "REST");
       Audio$.restOk();
@@ -772,7 +772,6 @@ const Game = (() => {
       if (state.life < 0) {
         state.life = 0;
         state.score -= 300;
-        if (state.score < 0) state.score = 0;
       }
       state.mCount++;
     }
@@ -789,7 +788,7 @@ const Game = (() => {
   function endGame(success) {
     //Metronome.stop();
     InputHandler.setCallback(null);
-
+    if (state.score < 0) state.score = 0;
     T(() => {
       BGM.stop();
       submitBtn.disabled = false;
