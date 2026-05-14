@@ -549,6 +549,7 @@ const Game = (() => {
     clearAll();
     BGM.stop();
     start(isReverse);
+    submitBtn.disabled = false;
   }
 
   function goTitle() {
@@ -565,7 +566,7 @@ const Game = (() => {
     setTimeout(() => {
       UI.hideLoading();
       start(isReverse);
-    },3000);
+    }, 3000);
   }
 
   // ─────────────────────────────
@@ -770,7 +771,7 @@ const Game = (() => {
       state.life--;
       if (state.life < 0) {
         state.life = 0;
-        state.score -= 150;
+        state.score -= 300;
       }
       state.mCount++;
     }
@@ -790,6 +791,7 @@ const Game = (() => {
 
     T(() => {
       BGM.stop();
+      submitBtn.disabled = false;
       UI.showResult(
         state.score,
         state.pCount,
@@ -969,7 +971,6 @@ submitBtn.addEventListener("click", async () => {
 
   // 점수 가져오기
   const score = Number(resScore.textContent);
-
   if (!userId) {
     resDetail.textContent = "아이디를 입력해주세요.";
     return;
@@ -979,17 +980,20 @@ submitBtn.addEventListener("click", async () => {
     submitBtn.disabled = true;
     submitBtn.textContent = "전송 중...";
 
-    const response = await fetch("https://서버주소/api/leaderboard", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      "https://7y8yhdx6vf.execute-api.ap-northeast-2.amazonaws.com/api/result",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userId,
+          gameName: "green-blue-white",
+          score: score,
+        }),
       },
-      body: JSON.stringify({
-        gameName: "blue-flag-game",
-        userId: userId,
-        score: score,
-      }),
-    });
+    );
 
     if (!response.ok) {
       throw new Error("POST 실패");
@@ -1002,10 +1006,10 @@ submitBtn.addEventListener("click", async () => {
     resDetail.textContent = data.message || "점수가 등록되었습니다.";
   } catch (error) {
     console.error(error);
-
+    submitBtn.disabled = false;
     resDetail.textContent = "점수 등록 중 오류가 발생했습니다.";
   } finally {
-    submitBtn.disabled = false;
+    userIdInput.value = "";
     submitBtn.textContent = "확인";
   }
 });
