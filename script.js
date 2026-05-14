@@ -772,6 +772,7 @@ const Game = (() => {
       if (state.life < 0) {
         state.life = 0;
         state.score -= 300;
+        if (state.score < 0) state.score = 0;
       }
       state.mCount++;
     }
