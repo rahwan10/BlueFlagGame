@@ -18,6 +18,7 @@
       ✋ <b>입력</b> — 같은 간격으로 타이밍에 맞게 누르세요<br><br>
       ▲ 뛰어&nbsp;&nbsp;·&nbsp;&nbsp;▼ 엎드려&nbsp;&nbsp;·&nbsp;&nbsp; 안 누름
     </div>
+    <input type="text" id="userId" placeholder="유저 아이디 입력" />
     <div class="ov-actions">
       <button class="btn btn-start" onclick="Game.handleStart(false)">▶ START</button>
       <button class="btn btn-start" onclick="Tutorial.start()">▶ Tutorial</button>
@@ -27,8 +28,9 @@
   <!-- RESULT SCREEN -->
   <div class="overlay hidden" id="resultScreen">
     <div class="ov-title" id="resTitle">결과</div>
-    <div class="ov-score" id="resScore">0</div> <input type="text" id="userId" placeholder="유저 아이디 입력" /> <button
-      id="submitBtn">확인</button>
+    <div class="ov-score" id="resScore">0</div>
+    <!-- <input type="text" id="userId" placeholder="유저 아이디 입력" /> -->
+    <button id="submitBtn">점수전송</button>
     <div class="ov-detail" id="resDetail"></div>
     <div class="ov-actions"> <button class="btn btn-start" onclick="Game.restart(false)">↺ 다시하기</button> <button
         class="btn" onclick="Game.goTitle()">◀ 타이틀</button> </div>
