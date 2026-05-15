@@ -981,11 +981,12 @@ submitBtn.addEventListener("click", async () => {
     submitBtn.textContent = "전송 중...";
 
     const response = await fetch(
-      "https://7y8yhdx6vf.execute-api.ap-northeast-2.amazonaws.com/api/result",
+      CONFIG.API_BASE_URL,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "apiKey": CONFIG.API_KEY
         },
         body: JSON.stringify({
           userId: userId,
