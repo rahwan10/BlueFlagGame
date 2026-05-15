@@ -589,7 +589,7 @@ const Game = (() => {
       UI.showAnnounce("⚡ LEVEL UP!");
     }
     if (state.round === 8) {
-      UI.showAnnounce("🐸 청개구리 모드!", "var(--yellow)");
+      UI.showAnnounce("지금부터 🐸 청개구리 모드!", "var(--yellow)");
     }
     clearAll();
 
