@@ -169,6 +169,7 @@ body::after {
   align-items: center;
   gap: 4px;
   transition: all .12s;
+  white-space: nowrap;
 }
 
 .btn:last-child {
