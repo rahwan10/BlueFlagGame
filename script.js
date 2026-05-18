@@ -960,7 +960,10 @@ const Tutorial = (() => {
 UI.showStart();
 
 // leaderboard.js
-
+const CONFIG = {
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+  API_KEY: import.meta.env.VITE_API_KEY,
+};
 const submitBtn = document.getElementById("submitBtn");
 const userIdInput = document.getElementById("userId");
 const resDetail = document.getElementById("resDetail");
@@ -980,21 +983,18 @@ submitBtn.addEventListener("click", async () => {
     submitBtn.disabled = true;
     submitBtn.textContent = "전송 중...";
 
-    const response = await fetch(
-      CONFIG.API_BASE_URL,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apiKey": CONFIG.API_KEY
-        },
-        body: JSON.stringify({
-          userId: userId,
-          gameName: "green-blue-white",
-          score: score,
-        }),
+    const response = await fetch(CONFIG.API_BASE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apiKey: CONFIG.API_KEY,
       },
-    );
+      body: JSON.stringify({
+        userId,
+        gameName: "green-blue-white",
+        score,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error("POST 실패");
