@@ -1014,3 +1014,5 @@ submitBtn.addEventListener("click", async () => {
     submitBtn.textContent = "확인";
   }
 });
+window.Game = Game;
+window.Tutorial = Tutorial;
