@@ -4,7 +4,6 @@ const CHAR_STATE = {
   STAND: "/img/graffe_standing.png",
   JUMP: "/img/graffe_jump.png",
   LIE: "/img/graffe_lieDown.png",
-  
 };
 
 let currentState = "STAND";
@@ -988,12 +987,12 @@ submitBtn.addEventListener("click", async () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        apiKey: CONFIG.API_KEY,
       },
       body: JSON.stringify({
         userId,
         gameName: "green-blue-white",
         score,
+        apiKey: CONFIG.API_KEY,
       }),
     });
 
