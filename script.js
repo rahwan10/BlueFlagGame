@@ -1,9 +1,9 @@
 "use strict";
 
 const CHAR_STATE = {
-  STAND: "./img/graffe_standing.png",
-  JUMP: "./img/graffe_jump.png",
-  LIE: "./img/graffe_lieDown.png",
+  STAND: "/img/graffe_standing.png",
+  JUMP: "/img/graffe_jump.png",
+  LIE: "/img/graffe_lieDown.png",
 };
 
 let currentState = "STAND";
