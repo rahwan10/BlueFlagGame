@@ -110,7 +110,7 @@ const BGM = (() => {
   let audio;
 
   function init() {
-    audio = new Audio("./bgm.mp3");
+    audio = new Audio("/bgm.mp3");
     audio.loop = true;
     audio.preload = "auto";
   }
