@@ -646,3 +646,28 @@ body::after {
   font-size: 14px;
   color: white;
 }
+
+#englishCheckBox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-right: 6px;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+#englishCheckBox:checked {
+  background-color: #fff;
+  border-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5l2.5 2.5 4.5-4.5' stroke='%23000' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: cover;
+}
+
+#englishCheckBox:hover {
+  border-color: #aaa;
+}
