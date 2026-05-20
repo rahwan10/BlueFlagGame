@@ -174,43 +174,83 @@ const Audio$ = (() => {
 //  COMMAND POOL
 // ══════════════════════════════════════════════
 const POOL_BY_ROUND = {
-  1: {
-    UP: [{ text: "뛰어!", action: "UP" }],
-    DOWN: [{ text: "엎드려!", action: "DOWN" }],
-    REST: [{ text: "가만히", action: "REST" }],
+  korean: {
+    1: {
+      UP: [{ text: "뛰어!", action: "UP" }],
+      DOWN: [{ text: "엎드려!", action: "DOWN" }],
+      REST: [{ text: "가만히", action: "REST" }],
+    },
+    2: {
+      UP: [
+        { text: "뛰어!", action: "UP" },
+        { text: "점프!", action: "UP" },
+      ],
+      DOWN: [
+        { text: "엎드려!", action: "DOWN" },
+        { text: "아래로!", action: "DOWN" },
+      ],
+      REST: [
+        { text: "가만히", action: "REST" },
+        { text: "그대로", action: "REST" },
+      ],
+    },
+    3: {
+      UP: [
+        { text: "뛰어!", action: "UP" },
+        { text: "점프!", action: "UP" },
+        { text: "위로!", action: "UP" },
+      ],
+      DOWN: [
+        { text: "엎드려!", action: "DOWN" },
+        { text: "아래로!", action: "DOWN" },
+        { text: "숙여!", action: "DOWN" },
+      ],
+      REST: [
+        { text: "가만히", action: "REST" },
+        { text: "그대로", action: "REST" },
+        { text: "쉬어", action: "REST" },
+      ],
+    },
   },
-  2: {
-    UP: [
-      { text: "뛰어!", action: "UP" },
-      { text: "점프!", action: "UP" },
-    ],
-    DOWN: [
-      { text: "엎드려!", action: "DOWN" },
-      { text: "아래로!", action: "DOWN" },
-    ],
-    REST: [
-      { text: "가만히", action: "REST" },
-      { text: "그대로", action: "REST" },
-    ],
+
+  english: {
+    1: {
+      UP: [{ text: "Jump!", action: "UP" }],
+      DOWN: [{ text: "Down!", action: "DOWN" }],
+      REST: [{ text: "Stay!", action: "REST" }],
+    },
+    2: {
+      UP: [
+        { text: "Jump!", action: "UP" },
+        { text: "Leap!", action: "UP" },
+      ],
+      DOWN: [
+        { text: "Duck!", action: "DOWN" },
+        { text: "Down!", action: "DOWN" },
+      ],
+      REST: [
+        { text: "Stay!", action: "REST" },
+        { text: "Relax!", action: "REST" },
+      ],
+    },
+    3: {
+      UP: [
+        { text: "Jump!", action: "UP" },
+        { text: "Leap!", action: "UP" },
+        { text: "Up!", action: "UP" },
+      ],
+      DOWN: [
+        { text: "Duck!", action: "DOWN" },
+        { text: "Down!", action: "DOWN" },
+        { text: "Drop!", action: "DOWN" },
+      ],
+      REST: [
+        { text: "Freeze!", action: "REST" },
+        { text: "Relax!", action: "REST" },
+        { text: "Stay!", action: "REST" },
+      ],
+    },
   },
-  3: {
-    UP: [
-      { text: "뛰어!", action: "UP" },
-      { text: "점프!", action: "UP" },
-      { text: "위로!", action: "UP" },
-    ],
-    DOWN: [
-      { text: "엎드려!", action: "DOWN" },
-      { text: "아래로!", action: "DOWN" },
-      { text: "숙여!", action: "DOWN" },
-    ],
-    REST: [
-      { text: "가만히", action: "REST" },
-      { text: "그대로", action: "REST" },
-      { text: "쉬어", action: "REST" },
-    ],
-  },
-  // 4, 5라운드는 청개구리 모드라 REVERSE_POOL 사용
 };
 function getPoolLevel(round) {
   if (round <= 3) return 1;
@@ -219,24 +259,31 @@ function getPoolLevel(round) {
 }
 
 const REVERSE_POOL = {
-  UP: [{ text: "엎드려!", action: "UP" }],
-  DOWN: [{ text: "뛰어!", action: "DOWN" }],
-  REST: [{ text: "가만히", action: "REST" }],
+  korean: {
+    UP: [{ text: "엎드려!", action: "UP" }],
+    DOWN: [{ text: "뛰어!", action: "DOWN" }],
+    REST: [{ text: "가만히", action: "REST" }],
+  },
+  english: {
+    UP: [{ text: "Down!", action: "UP" }],
+    DOWN: [{ text: "Jump!", action: "DOWN" }],
+    REST: [{ text: "Stay!", action: "REST" }],
+  },
 };
 
-function pickCmd(action, round) {
+function pickCmd(action, round, lang) {
   //console.log("pickCmd", action);
   const level = getPoolLevel(round);
-  const p = POOL_BY_ROUND[level][action];
+  const p = POOL_BY_ROUND[lang][level][action];
   return { ...p[Math.floor(Math.random() * p.length)] };
 }
-function pickReverseCmd(action) {
+function pickReverseCmd(action, lang) {
   //console.log("pickReverseCmd", action);
-  const p = REVERSE_POOL[action];
+  const p = REVERSE_POOL[lang][action];
   return { ...p[Math.floor(Math.random() * p.length)] };
 }
 
-function genSequence(isReverse, round) {
+function genSequence(isReverse, round, lang) {
   // Always include at least one of each, 4th slot random
   const base = ["UP", "DOWN", "REST"];
 
@@ -257,7 +304,9 @@ function genSequence(isReverse, round) {
     const j = Math.floor(Math.random() * (i + 1));
     [bag[i], bag[j]] = [bag[j], bag[i]];
   }
-  return bag.map((a) => (isReverse ? pickReverseCmd(a) : pickCmd(a, round)));
+  return bag.map((a) =>
+    isReverse ? pickReverseCmd(a, lang) : pickCmd(a, round, lang),
+  );
 }
 
 // ══════════════════════════════════════════════
@@ -517,6 +566,11 @@ const Game = (() => {
   // ─────────────────────────────
 
   async function start(isReverse) {
+    const isEng = document.getElementById("englishCheckBox");
+    let lang = "korean";
+    if (isEng.checked) {
+      lang = "english";
+    }
     BGM.stop();
     UI.hideStart();
     Audio$.resume();
@@ -537,7 +591,7 @@ const Game = (() => {
     BGM.play(0);
     T(
       () => {
-        nextRound(isReverse);
+        nextRound(isReverse, lang);
         // Metronome.start();
       },
       BEAT_MS * 8 + DELAY_MS,
@@ -572,7 +626,7 @@ const Game = (() => {
   // ─────────────────────────────
   // ROUND
   // ─────────────────────────────
-  function nextRound(isReverse) {
+  function nextRound(isReverse, lang) {
     if (state.round >= TOTAL_ROUNDS) return endGame(true);
     state.round++;
     if (state.round === 8) {
@@ -593,7 +647,7 @@ const Game = (() => {
     }
     clearAll();
 
-    state.seq = genSequence(isReverse, state.round);
+    state.seq = genSequence(isReverse, state.round, lang);
     roundSlotResults = Array(8).fill(false);
 
     UI.buildSlots();
@@ -673,9 +727,9 @@ const Game = (() => {
     // ─────────────────────────
     // NEXT ROUND
     // ─────────────────────────
-    T(() => endRound(isReverse), inputStart + 8 * BEAT_MS - now);
+    T(() => endRound(isReverse, lang), inputStart + 8 * BEAT_MS - now);
   }
-  function endRound(isReverse) {
+  function endRound(isReverse, lang) {
     InputHandler.setCallback(null);
     UI.setPhase("");
 
@@ -685,7 +739,7 @@ const Game = (() => {
       if (state.round >= TOTAL_ROUNDS) {
         endGame(true);
       } else {
-        nextRound(isReverse);
+        nextRound(isReverse, lang);
       }
     }, 0);
   }
@@ -808,35 +862,55 @@ const Game = (() => {
 // tutorial
 // ─────────────────────────────
 const Tutorial = (() => {
-  const STEPS = [
-    // ── 기본 동작
-    { text: "▲ 위 키를 눌러보세요!", action: "UP", guide: "뛰어!" },
-    { text: "▼ 아래 키를 눌러보세요!", action: "DOWN", guide: "엎드려!" },
-    { text: "아무키도 누르지 마세요!", action: "REST", guide: "가만히" },
-    // ── 같은 의미 다른 말
-    { text: "같은 뜻이에요! ▲ 눌러보세요", action: "UP", guide: "점프!" },
-    { text: "이것도 같아요! ▼ 눌러보세요", action: "DOWN", guide: "숙여!" },
-    { text: "이것도 쉬는 거예요!", action: "REST", guide: "그대로" },
-    // ── 청개구리 예고 (action: null = 자동진행)
-    { text: "⚠ 청개구리 모드 체험!", action: null, guide: "반대로!" },
-    // ── 청개구리 실습
-    {
-      text: "🐸 엎드려 → 실제론 ▲!",
-      action: "UP",
-      guide: "엎드려!",
-      isRebel: true,
-    },
-    {
-      text: "🐸 뛰어 → 실제론 ▼!",
-      action: "DOWN",
-      guide: "뛰어!",
-      isRebel: true,
-    },
-    // ── 마무리
-    { text: "완벽! 이제 시작해봐요 🎮", action: null, guide: "" },
-  ];
+  const STEPS = {
+    korean: [
+      { text: "▲ 위 키를 눌러보세요!", action: "UP", guide: "뛰어!" },
+      { text: "▼ 아래 키를 눌러보세요!", action: "DOWN", guide: "엎드려!" },
+      { text: "아무키도 누르지 마세요!", action: "REST", guide: "가만히" },
+      { text: "같은 뜻이에요! ▲ 눌러보세요", action: "UP", guide: "점프!" },
+      { text: "이것도 같아요! ▼ 눌러보세요", action: "DOWN", guide: "숙여!" },
+      { text: "이것도 쉬는 거예요!", action: "REST", guide: "그대로" },
+      { text: "⚠ 청개구리 모드 체험!", action: null, guide: "반대로!" },
+      {
+        text: "🐸 엎드려 → 실제론 ▲!",
+        action: "UP",
+        guide: "엎드려!",
+        isRebel: true,
+      },
+      {
+        text: "🐸 뛰어 → 실제론 ▼!",
+        action: "DOWN",
+        guide: "뛰어!",
+        isRebel: true,
+      },
+      { text: "완벽! 이제 시작해봐요 🎮", action: null, guide: "" },
+    ],
+    english: [
+      { text: "▲ Press the UP key!", action: "UP", guide: "Jump!" },
+      { text: "▼ Press the DOWN key!", action: "DOWN", guide: "Down!" },
+      { text: "Don't press anything!", action: "REST", guide: "Stay!" },
+      { text: "Same thing! Press ▲", action: "UP", guide: "Leap!" },
+      { text: "Same! Press ▼", action: "DOWN", guide: "Duck!" },
+      { text: "This is also rest!", action: "REST", guide: "Relax!" },
+      { text: "⚠ Rebel mode incoming!", action: null, guide: "반대로!" },
+      {
+        text: "🐸 Duck → actually ▲!",
+        action: "UP",
+        guide: "Down!",
+        isRebel: true,
+      },
+      {
+        text: "🐸 Jump → actually ▼!",
+        action: "DOWN",
+        guide: "Jump!",
+        isRebel: true,
+      },
+      { text: "Perfect! Let's start 🎮", action: null, guide: "" },
+    ],
+  };
 
   let stepIdx = 0;
+  let steps = [];
   let timers = [];
 
   function T(fn, ms) {
@@ -855,18 +929,23 @@ const Tutorial = (() => {
     Audio$.resume();
     document.getElementById("startScreen").classList.add("hidden");
     stepIdx = 0;
+    
     UI.buildSlots();
     UI.setPhase("");
+    const isEng = document.getElementById("englishCheckBox");
+    const lang = isEng?.checked ? "english" : "korean";
+    steps = STEPS[lang]; // 시작할 때 lang 결정
+
     showStep();
   }
 
   function showStep() {
-    if (stepIdx >= STEPS.length) {
+    if (stepIdx >= steps.length) {
       end();
       return;
     }
 
-    const step = STEPS[stepIdx];
+    const step = steps[stepIdx];
 
     // ── action: null → 자동 진행 스텝
     if (step.action === null) {
