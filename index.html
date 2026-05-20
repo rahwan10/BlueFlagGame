@@ -22,6 +22,7 @@
     <div class="ov-actions">
       <button class="btn btn-start" onclick="Game.handleStart(false)">▶ START</button>
       <button class="btn btn-start" onclick="Tutorial.start()">▶ Tutorial</button>
+      <input type="checkbox" id="englishCheckBox">English</input>
     </div>
   </div>
 
@@ -32,8 +33,7 @@
     <!-- <input type="text" id="userId" placeholder="유저 아이디 입력" /> -->
     <button id="submitBtn">점수전송</button>
     <div class="ov-detail" id="resDetail"></div>
-    <div class="ov-actions"> <button class="btn btn-start" onclick="Game.restart(false)">↺ 다시하기</button> <button
-        class="btn" onclick="Game.goTitle()">◀ 타이틀</button> </div>
+    <div class="ov-actions"> <button class="btn" onclick="Game.goTitle()">◀ 타이틀</button> </div>
   </div>
 
   <div class="overlay hidden" id="loadingScreen">
@@ -96,7 +96,7 @@
 
   </div>
 
-  <script type="module" src="./script.js"></script>
+  <script type="module" src="./script.js" defer></script>
 </body>
 <audio id="frogSfx" src="./frogSound.mp3" preload="false"></audio>
 <div class="frog-flash" id="frogFlash"></div>
