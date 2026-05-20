@@ -104,6 +104,8 @@ async function preloadBGM() {
   if (bgmReady) return;
   await BGM.init();
   bgmReady = true;
+  const frogEl = document.getElementById("frogSfx");
+  frogEl.load();
 }
 
 const BGM = (() => {
